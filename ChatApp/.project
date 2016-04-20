@@ -5,6 +5,7 @@
 	<projects>
 		<project>ChatAppWeb</project>
 		<project>ChatAppEJB</project>
+		<project>UserApp</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

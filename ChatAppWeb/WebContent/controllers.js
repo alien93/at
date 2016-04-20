@@ -8,11 +8,16 @@ angular.module('chatApp')
 	        	$rootScope.test = response[0].name;
 	        	console.log($rootScope.test);
 	        })*/
-		webSocket = new WebSocket("ws://localhost:8080/ChatAppWeb/websocket")
+		if(webSocket == undefined)
+			webSocket = new WebSocket("ws://localhost:8080/ChatAppWeb/websocket");
 		webSocket.onopen = function(event){
-			console.log(event);
+			var text = "login: " + $scope.username + "," + $scope.password;
+			webSocket.send(text);
 		}	
 		
+		webSocket.onmessage  = function(message){
+			console.log(message);
+		}
 		$location.path('/chat');
 		
 	        
@@ -24,6 +29,8 @@ angular.module('chatApp')
 		$scope.register = function(){
 	        $location.path('/login');                        
 			}
+		if(websocket == undefined)
+			webSocket = new WebSocket("ws://localhost:8080/ChatAppWeb/websocket");
 		
 		}
 	]);

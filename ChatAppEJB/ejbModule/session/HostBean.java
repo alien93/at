@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
@@ -19,6 +20,13 @@ import exception.AliasExsistsException;
 @Path("host")
 public class HostBean implements HostBeanRemote {
 
+	@GET
+	@Path("test")
+	public String test(){
+		return "test";
+	}
+	
+	
 	@POST
 	@Path("register")
 	@Override

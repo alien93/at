@@ -10,4 +10,7 @@
   <module>
     <ejb>ChatAppEJB.jar</ejb>
   </module>
+  <module>
+    <ejb>UserApp.jar</ejb>
+  </module>
 </application>

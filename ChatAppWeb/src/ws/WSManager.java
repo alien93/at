@@ -45,8 +45,21 @@ public class WSManager {
 		System.out.println("Message from " + session.getId() + ":" + message);
 		try{
 			if(session.isOpen()){
+				//check if login
+				String tokens[] = message.split(" ");
+				if(tokens[0].equals("login:")){
+					//get username and password
+					String userpass[] = tokens[1].split(",");
+					String username = userpass[0];
+					String password = userpass[1];
+					
+					//create REST or JMS request to UserApp
+					
+					
+					
+				}
+				
 				for(Session s: sessions){
-		
 					if(!s.getId().equals(session.getId())){
 						s.getBasicRemote().sendText(message, last);
 					}

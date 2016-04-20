@@ -1,4 +1,4 @@
-/*package session;
+package rest;
 
 import java.util.Set;
 
@@ -16,8 +16,7 @@ public class ApplicationConfig extends Application{
 	}
 	
 	private void addRestResourceClasses(Set<Class<?>> resources){
-		resources.add(session.HostBean.class);
+		resources.add(session.UserBean.class);
 	}
 	
 }
-*/
