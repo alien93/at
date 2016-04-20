@@ -1,17 +1,28 @@
 package ws;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 
-import javax.ejb.Singleton;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.jboss.resteasy.client.jaxrs.ResteasyClient;
+import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
+import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
+import org.jboss.resteasy.spi.HttpRequest;
+import org.json.JSONObject;
+
+import entity.User;
 
 //localhost:8080/ChatAppWeb/websocket
 //POJO
@@ -46,19 +57,29 @@ public class WSManager {
 		try{
 			if(session.isOpen()){
 				//check if login
-				String tokens[] = message.split(" ");
-				if(tokens[0].equals("login:")){
-					//get username and password
-					String userpass[] = tokens[1].split(",");
-					String username = userpass[0];
-					String password = userpass[1];
-					
-					//create REST or JMS request to UserApp
-					
-					
+				JSONObject jsonmsg = new JSONObject(message);
+				//login
+				if(jsonmsg.getString("type").equals("login")){
+					String username = jsonmsg.getString("username");
+					String password = jsonmsg.getString("password");
+				}
+				else if(jsonmsg.getString("type").equals("register")){
+					String username = jsonmsg.getString("username");
+					String password = jsonmsg.getString("password");
+					//rest
+					ResteasyClient client = new ResteasyClientBuilder().build();
+					String val = "http://localhost:8080/ChatAppWeb/rest/user/register/"+ username + "/"+password+";username=" + username + ";password=" + password;
+					System.out.println(val);
+					ResteasyWebTarget target = client.target(val);
+					Response response = target.request(MediaType.APPLICATION_JSON).get();
+					User ret = response.readEntity(User.class);
+					System.out.println(ret);
 					
 				}
 				
+					
+					//create REST or JMS request to UserApp
+			
 				for(Session s: sessions){
 					if(!s.getId().equals(session.getId())){
 						s.getBasicRemote().sendText(message, last);

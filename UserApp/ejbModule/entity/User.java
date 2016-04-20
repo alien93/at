@@ -1,14 +1,31 @@
 package entity;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import javax.ws.rs.FormParam;
+
+
 public class User {
 
-	String username;
-	String password;
-	Host host;
+	private String username;
+	private String password;
+	private Host host;
+	
+	HashMap<String, String> registeredUsers = new HashMap<>();
+	ArrayList<User> loggedUsers = new ArrayList<>();
+	
+	
 	public User() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+	
+	public User(String username, String password){
+		this.username = username;
+		this.password = password;
+	}
+	
 	public User(String username, String password, Host host) {
 		super();
 		this.username = username;
@@ -37,4 +54,10 @@ public class User {
 	public void setHost(Host host) {
 		this.host = host;
 	}
+	
+	public void addRegisteredUser(String username, String password){
+		this.registeredUsers.put(username, password);
+	}
+	
+	
 }

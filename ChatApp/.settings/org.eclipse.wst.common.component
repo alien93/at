@@ -13,5 +13,8 @@
             <dependent-object/>
             <dependency-type>uses</dependency-type>
         </dependent-module>
+        <dependent-module archiveName="json-20160212.jar" deploy-path="/lib" handle="module:/classpath/lib//home/nina/Desktop/AT/finalProj/json-20160212.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
     </wb-module>
 </project-modules>

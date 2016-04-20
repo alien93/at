@@ -11,7 +11,7 @@ angular.module('chatApp')
 		if(webSocket == undefined)
 			webSocket = new WebSocket("ws://localhost:8080/ChatAppWeb/websocket");
 		webSocket.onopen = function(event){
-			var text = "login: " + $scope.username + "," + $scope.password;
+			var text = '{"type":"login", "username":"' + $scope.username + '", "password":"' + $scope.password + '"}';
 			webSocket.send(text);
 		}	
 		
@@ -19,18 +19,23 @@ angular.module('chatApp')
 			console.log(message);
 		}
 		$location.path('/chat');
-		
-	        
 		}
 	}
 	])
 	.controller('regController', ['$scope', '$location',
 	   function($scope, $location, UserFactory){
 		$scope.register = function(){
-	        $location.path('/login');                        
+			if(webSocket == undefined)
+				webSocket = new WebSocket("ws://localhost:8080/ChatAppWeb/websocket");
+			webSocket.onopen = function(event){
+				var text = '{"type":"register", "username":"' + $scope.username + '", "password":"' + $scope.password + '"}';
+				webSocket.send(text);
 			}
-		if(websocket == undefined)
-			webSocket = new WebSocket("ws://localhost:8080/ChatAppWeb/websocket");
-		
+			
+			webSocket.onmessage = function(message){
+				console.log(message);
+			}	
+			$location.path('/login');                        
+			}
 		}
 	]);
