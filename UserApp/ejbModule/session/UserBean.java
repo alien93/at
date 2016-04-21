@@ -40,9 +40,11 @@ public class UserBean implements UserBeanRemote {
 	@GET
 	@Path("/register/{username}/{password}")
 	@Produces(MediaType.APPLICATION_JSON)
+	@Override
 	public User register(@PathParam("username") String username, @PathParam("password") @Encoded String password) throws UsernameExistsException {
 		User retVal = new User(username, password);
 		retVal.addRegisteredUser(username, password);
+		System.out.println("hello from register");
 		return retVal;
 	}
 
@@ -59,11 +61,12 @@ public class UserBean implements UserBeanRemote {
 
 	@GET
 	@Path("logout")
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	@Override
 	public Boolean logout(User logout) {
-		// TODO Auto-generated method stub
-		return false;
+		Boolean retVal = false;
+		retVal = logout.removeLoggedUser(logout);
+		return retVal;
 	}
 
 	@GET

@@ -15,8 +15,8 @@ public class User {
 	private String password;
 	private Host host;
 	
-	private HashMap<String, String> registeredUsers = new HashMap<>();
-	private ArrayList<User> loggedUsers = new ArrayList<>();
+	private static HashMap<String, String> registeredUsers = new HashMap<>();
+	private static ArrayList<User> loggedUsers = new ArrayList<>();
 	
 	
 	public User() {
@@ -37,7 +37,7 @@ public class User {
 	}
 	@Override
 	public String toString() {
-		return "User [username=" + username + ", password=" + password + ", host=" + host + "]";
+		return "{username:" + username + ", password:" + password + ", host:" + host + "}";
 	}
 	public String getUsername() {
 		return username;
@@ -59,16 +59,37 @@ public class User {
 	}
 	
 	public void addRegisteredUser(String username, String password){
-		this.registeredUsers.put(username, password);
+		registeredUsers.put(username, password);
+		System.out.println(registeredUsers.toString());
 	}
 
 	public boolean addLoggedUser(User user) {
+		boolean retVal = false;
 		System.out.println("Registered users: " + registeredUsers);
 		if(registeredUsers.containsKey(user.username)){
-			return true;
+			if(registeredUsers.get(username).equals(password)){
+				loggedUsers.add(user);
+				retVal =  true;
+			}
+			else{
+				retVal =  false;
+			}
 		}
 		else
-			return false;
+			retVal =  false;
+		return retVal;
+	}
+	
+	public boolean removeLoggedUser(User user){
+		boolean retVal = false;
+		if(loggedUsers.contains(user)){
+			loggedUsers.remove(user);
+			retVal = true;
+		}
+		else{
+			System.out.println("There is no logged user under this username");
+		}
+		return retVal;
 	}
 	
 }

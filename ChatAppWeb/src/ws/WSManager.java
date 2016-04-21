@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 
+import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -28,7 +29,7 @@ import entity.User;
 //localhost:8080/ChatAppWeb/websocket
 //POJO
 //Server endpoint handles incoming WebSocket messages
-@ServerEndpoint("/websocket")
+@ServerEndpoint(value="/websocket", encoders={UserEncoder.class})
 public class WSManager {
 
 	List<Session> sessions = new ArrayList<Session>();
@@ -58,10 +59,11 @@ public class WSManager {
 		try{
 			if(session.isOpen()){
 				//check if login
+				System.out.println(message);
+				
 				JSONObject jsonmsg = new JSONObject(message);
 				//login
 				if(jsonmsg.getString("type").equals("login")){
-					System.out.println("hello from login");
 					String username = jsonmsg.getString("username");
 					String password = jsonmsg.getString("password");
 					
@@ -71,10 +73,9 @@ public class WSManager {
 					ResteasyWebTarget target = client.target(val);
 					Response response = target.request().get();
 					Boolean ret = response.readEntity(Boolean.class);
-					System.out.println("Hello from login");
-					System.out.println(ret);
 					if (ret == true){
 						session.getBasicRemote().sendText("success");
+						
 					}
 					else{
 						session.getBasicRemote().sendText("error");
@@ -92,10 +93,19 @@ public class WSManager {
 					User ret = response.readEntity(User.class);
 					if(ret!=null){
 						session.getBasicRemote().sendText("success");
+						try {
+							session.getBasicRemote().sendObject(ret);
+						} catch (EncodeException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
 					else{
 						session.getBasicRemote().sendText("error");
 					}
+				}
+				else{
+					System.out.println(jsonmsg);
 				}
 				
 					
@@ -119,7 +129,11 @@ public class WSManager {
 	@OnClose
 	public void onClose(Session session){
 		System.out.println("Session " + session.getId() + " has ended");
-		sessions.remove(session);
+		/*ResteasyClient client = new ResteasyClientBuilder().build();
+		String val = "http://localhost:8080/ChatAppWeb/rest/user/logout";
+		ResteasyWebTarget target = client.target(val);
+		target.request(MediaType.APPLICATION_JSON).post(Entity.entity(new User("",""), MediaType.APPLICATION_JSON));	//logout user TODO: add user
+		*/sessions.remove(session);
 	}
 	
 	@OnError
