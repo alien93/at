@@ -3,7 +3,10 @@ package entity;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.jms.JMSSessionMode;
 import javax.ws.rs.FormParam;
+
+import jdk.nashorn.internal.ir.annotations.Ignore;
 
 
 public class User {
@@ -12,8 +15,8 @@ public class User {
 	private String password;
 	private Host host;
 	
-	HashMap<String, String> registeredUsers = new HashMap<>();
-	ArrayList<User> loggedUsers = new ArrayList<>();
+	private HashMap<String, String> registeredUsers = new HashMap<>();
+	private ArrayList<User> loggedUsers = new ArrayList<>();
 	
 	
 	public User() {
@@ -58,6 +61,14 @@ public class User {
 	public void addRegisteredUser(String username, String password){
 		this.registeredUsers.put(username, password);
 	}
-	
+
+	public boolean addLoggedUser(User user) {
+		System.out.println("Registered users: " + registeredUsers);
+		if(registeredUsers.containsKey(user.username)){
+			return true;
+		}
+		else
+			return false;
+	}
 	
 }

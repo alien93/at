@@ -1,5 +1,6 @@
 package session;
 
+import java.util.HashMap;
 import java.util.List;
 
 import javax.ejb.LocalBean;
@@ -15,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.jboss.resteasy.annotations.Form;
 
+import entity.Host;
 import entity.User;
 import exception.InvalidCredentialsException;
 import exception.UsernameExistsException;
@@ -39,22 +41,20 @@ public class UserBean implements UserBeanRemote {
 	@Path("/register/{username}/{password}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public User register(@PathParam("username") String username, @PathParam("password") @Encoded String password) throws UsernameExistsException {
-		System.out.println("I am here");
-		System.out.println("user:" +username);
-		System.out.println("pass:" + password);
 		User retVal = new User(username, password);
 		retVal.addRegisteredUser(username, password);
-		System.out.println("retVal " + retVal.toString());
 		return retVal;
 	}
 
-	@POST
-	@Path("login")
-	@Produces(MediaType.TEXT_PLAIN)
+	@GET
+	@Path("/login/{username}/{password}")
+	@Produces(MediaType.APPLICATION_JSON)
 	@Override
-	public Boolean login(String username, String password) throws InvalidCredentialsException {
-		// TODO Auto-generated method stub
-		return false;
+	public Boolean login(@PathParam("username") String username, @PathParam("password") @Encoded String password) throws InvalidCredentialsException {
+		Boolean retVal = false;
+		User user = new User(username, password, new Host("1", "host1"));
+		retVal = user.addLoggedUser(user);	
+		return retVal;
 	}
 
 	@GET

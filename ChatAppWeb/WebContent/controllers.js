@@ -11,19 +11,28 @@ angular.module('chatApp')
 		if(webSocket == undefined)
 			webSocket = new WebSocket("ws://localhost:8080/ChatAppWeb/websocket");
 		webSocket.onopen = function(event){
+			console.log("hello from login");
 			var text = '{"type":"login", "username":"' + $scope.username + '", "password":"' + $scope.password + '"}';
 			webSocket.send(text);
 		}	
 		
 		webSocket.onmessage  = function(message){
-			console.log(message);
+			console.log(message.data);
+			if(message.data == "success"){
+				$location.path("/chat");
+				$scope.$apply();
+			}
+			else if(message.data == "error"){
+				$location.path("/login");
+				$rootScope.errorMessage = "Wrong username or password";
+				$scope.$apply();
+			}
 		}
-		$location.path('/chat');
 		}
 	}
 	])
 	.controller('regController', ['$scope', '$location',
-	   function($scope, $location, UserFactory){
+	   function($scope, $location, $rootScope, UserFactory){
 		$scope.register = function(){
 			if(webSocket == undefined)
 				webSocket = new WebSocket("ws://localhost:8080/ChatAppWeb/websocket");
@@ -33,9 +42,23 @@ angular.module('chatApp')
 			}
 			
 			webSocket.onmessage = function(message){
-				console.log(message);
+				console.log(message.data);
+				if(message.data == "success"){
+					$location.path("/login");
+					$scope.$apply();
+				}
+				else if(message.data == "error"){
+					console.log("hello from else");
+					$location.path("/register");
+					$rootScope.errorMessage = "User already exists.";
+					$scope.$apply();
+				}
 			}	
-			$location.path('/login');                        
-			}
 		}
-	]);
+		}
+	])
+	.controller('chatController',['$scope', function($scope){
+		$scope.sendMessage = function(){
+			console.log('sending message');
+		}
+	}]);

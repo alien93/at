@@ -13,5 +13,6 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ChatAppEJB"/>
+	<classpathentry kind="lib" path="/home/nina/Desktop/AT/finalProj/json-20160212.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

@@ -1,0 +1,28 @@
+body {
+  padding-top:70px;
+  width: 100%;
+  height: 100%;
+  font-family: "Source Sans Pro","Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.formAuth {
+  max-width: 330px;
+  padding: 5px;
+  margin: 0 auto;
+}
+
+.buttonSet {
+  width: 78px !important;
+}
+
+textarea#loggedUsers {
+	background-color: white !important;
+}
+
+textarea#messages {
+	background-color: white !important;
+}
