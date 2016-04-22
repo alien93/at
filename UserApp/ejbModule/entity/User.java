@@ -2,11 +2,9 @@ package entity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import javax.jms.JMSSessionMode;
-import javax.ws.rs.FormParam;
-
-import jdk.nashorn.internal.ir.annotations.Ignore;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 
 public class User {
@@ -81,15 +79,46 @@ public class User {
 	}
 	
 	public boolean removeLoggedUser(User user){
+		System.out.println("users before removal:");
+		System.out.println(loggedUsers.toString());
 		boolean retVal = false;
-		if(loggedUsers.contains(user)){
-			loggedUsers.remove(user);
-			retVal = true;
+		for (int i=0; i<loggedUsers.size(); i++){
+			if(loggedUsers.get(i).getUsername().equals(user.getUsername())){
+				loggedUsers.remove(i);
+				retVal = true;
+				System.out.println("users after removal:");
+				System.out.println(loggedUsers.toString());
+			}
 		}
-		else{
+		if(!retVal){
 			System.out.println("There is no logged user under this username");
 		}
 		return retVal;
+	}
+	
+	public User getUserByUsername(String username){
+		User retVal = null;
+		for(User u: loggedUsers){
+			if(u.username.equals(username)){
+				retVal = u;
+				break;
+			}
+		}
+		return retVal;
+	}
+	
+	public List<User> getAllUsers(){
+	/*	List<User> retVal = new ArrayList<User>();
+		Iterator<?> it = registeredUsers.entrySet().iterator();
+	    while (it.hasNext()) {
+	        @SuppressWarnings("rawtypes")
+			Map.Entry pair = (Map.Entry)it.next();
+	        User user = new User(pair.getKey().toString(), pair.getValue().toString());
+	        retVal.add(user);
+	        it.remove(); // avoids a ConcurrentModificationException
+	    }
+	    return retVal;*/
+		return null;
 	}
 	
 }

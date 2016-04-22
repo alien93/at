@@ -3,6 +3,7 @@
 	<name>ChatAppWeb</name>
 	<comment></comment>
 	<projects>
+		<project>UserApp</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

@@ -1,5 +1,5 @@
 var webSocket;
-var users = [];
+//var users = [];
 var username = "";
 
 angular.module('chatApp')
@@ -57,10 +57,6 @@ angular.module('chatApp')
 					$scope.error = true;
 					$scope.$apply();
 				}
-				else{	//it's an object
-					users.push(message.data);
-				}
-				
 				
 			}	
 		}
@@ -72,16 +68,8 @@ angular.module('chatApp')
 		}
 		$scope.logout = function(){
 			console.log('logout');
-			//var obj = JSON.parse(users[0]);
-			//console.log(obj.username);
-			for(var i=0; i<users.length; i++){
-				console.log(users[i]);
-				//var obj = JSON.parse(users[i]);
-				//if(obj.username == username){
-				//	console.log(username);
-				//}
-			}
-			//webSocket.send(user);
+			var text = '{"type":"logout", "username":"' + username + '"}';
+			webSocket.send(text);
 			$location.path('/login')
 		}
 	}]);

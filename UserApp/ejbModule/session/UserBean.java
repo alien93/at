@@ -1,6 +1,5 @@
 package session;
 
-import java.util.HashMap;
 import java.util.List;
 
 import javax.ejb.LocalBean;
@@ -14,7 +13,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.jboss.resteasy.annotations.Form;
 
 import entity.Host;
 import entity.User;
@@ -59,9 +57,10 @@ public class UserBean implements UserBeanRemote {
 		return retVal;
 	}
 
-	@GET
+	@POST
 	@Path("logout")
 	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Override
 	public Boolean logout(User logout) {
 		Boolean retVal = false;
@@ -74,8 +73,8 @@ public class UserBean implements UserBeanRemote {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Override
 	public List<User> getAllUsers() {
-		// TODO Auto-generated method stub
-		return null;
+		User user = new User();
+		return user.getAllUsers();
 	}
 	
 	

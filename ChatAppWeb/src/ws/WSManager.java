@@ -58,9 +58,7 @@ public class WSManager {
 		System.out.println("Message from " + session.getId() + ":" + message);
 		try{
 			if(session.isOpen()){
-				//check if login
-				System.out.println(message);
-				
+				//check if login			
 				JSONObject jsonmsg = new JSONObject(message);
 				//login
 				if(jsonmsg.getString("type").equals("login")){
@@ -93,19 +91,29 @@ public class WSManager {
 					User ret = response.readEntity(User.class);
 					if(ret!=null){
 						session.getBasicRemote().sendText("success");
-						try {
-							session.getBasicRemote().sendObject(ret);
-						} catch (EncodeException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
 					}
 					else{
 						session.getBasicRemote().sendText("error");
 					}
 				}
-				else{
-					System.out.println(jsonmsg);
+				else if(jsonmsg.getString("type").equals("logout")){
+					String username = jsonmsg.getString("username");
+							
+					User user = new User();
+					user = user.getUserByUsername(username);
+					
+					//rest
+					ResteasyClient client = new ResteasyClientBuilder().build();
+					String val = "http://localhost:8080/ChatAppWeb/rest/user/logout";
+					ResteasyWebTarget target = client.target(val);
+					Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(user, MediaType.APPLICATION_JSON));
+					Boolean ret = response.readEntity(Boolean.class);
+					if (ret == true){
+						session.getBasicRemote().sendText("success");	
+					}
+					else{
+						session.getBasicRemote().sendText("error");
+					}
 				}
 				
 					

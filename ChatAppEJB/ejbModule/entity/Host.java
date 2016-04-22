@@ -1,9 +1,13 @@
 package entity;
 
+import java.util.List;
+
 public class Host {
 
-	String address;
-	String alias;
+	private String address;
+	private String alias;
+	
+	private List<Host> hosts;
 	
 	public Host() {
 		super();
