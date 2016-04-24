@@ -1,6 +1,5 @@
 package session;
 
-import java.util.List;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
@@ -53,7 +52,11 @@ public class UserBean implements UserBeanRemote {
 	public Boolean login(@PathParam("username") String username, @PathParam("password") @Encoded String password) throws InvalidCredentialsException {
 		Boolean retVal = false;
 		User user = new User(username, password, new Host("1", "host1"));
-		retVal = user.addLoggedUser(user);	
+		retVal = user.addLoggedUser(user);
+		if(retVal == true){
+			//putem jms-a javi aplikaciji master cvora da se prijavio novi korisnik
+
+		}
 		return retVal;
 	}
 
@@ -66,6 +69,9 @@ public class UserBean implements UserBeanRemote {
 		System.out.println("hello from logout");
 		Boolean retVal = false;
 		retVal = logout.removeLoggedUser(logout);
+		if(retVal == true){
+			//putem jms-a javi aplikaciji master cvora da se korisnik odjavio
+		}
 		return retVal;
 	}
 
@@ -73,8 +79,8 @@ public class UserBean implements UserBeanRemote {
 	@Path("allUsers")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Override
-	public List<User> getAllUsers() {
-		return User.registeredUsers;
+	public UserList getAllUsers() {
+		return (UserList)User.registeredUsers;
 	}
 	
 	

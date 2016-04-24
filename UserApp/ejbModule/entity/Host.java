@@ -1,5 +1,8 @@
 package entity;
-
+/**
+ * @author nina
+ */
+import java.util.ArrayList;
 import java.util.List;
 
 public class Host {
@@ -7,7 +10,8 @@ public class Host {
 	private String address;
 	private String alias;
 	
-	private List<Host> hosts;
+	public static List<Host> hosts = new ArrayList<Host>();
+	public static List<User> loggedUsers = new ArrayList<User>();
 	
 	public Host() {
 		super();

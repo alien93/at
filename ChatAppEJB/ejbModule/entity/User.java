@@ -1,10 +1,7 @@
 package entity;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 
 public class User {
@@ -13,8 +10,8 @@ public class User {
 	private String password;
 	private Host host;
 	
-	private static HashMap<String, String> registeredUsers = new HashMap<>();
-	private static ArrayList<User> loggedUsers = new ArrayList<>();
+	public static List<User> registeredUsers = new ArrayList<>();
+	public static ArrayList<User> loggedUsers = new ArrayList<>();
 	
 	
 	public User() {
@@ -57,24 +54,23 @@ public class User {
 	}
 	
 	public void addRegisteredUser(String username, String password){
-		registeredUsers.put(username, password);
+		User u = new User(username, password, null);
+		registeredUsers.add(u);
 		System.out.println(registeredUsers.toString());
 	}
 
 	public boolean addLoggedUser(User user) {
 		boolean retVal = false;
 		System.out.println("Registered users: " + registeredUsers);
-		if(registeredUsers.containsKey(user.username)){
-			if(registeredUsers.get(username).equals(password)){
+		for(User u: registeredUsers){
+			if(u.getUsername().equals(user.username) && u.getPassword().equals(user.password)){
 				loggedUsers.add(user);
 				retVal =  true;
 			}
-			else{
+			else
 				retVal =  false;
-			}
 		}
-		else
-			retVal =  false;
+		
 		return retVal;
 	}
 	
@@ -107,18 +103,11 @@ public class User {
 		return retVal;
 	}
 	
-	public List<User> getAllUsers(){
-	/*	List<User> retVal = new ArrayList<User>();
-		Iterator<?> it = registeredUsers.entrySet().iterator();
-	    while (it.hasNext()) {
-	        @SuppressWarnings("rawtypes")
-			Map.Entry pair = (Map.Entry)it.next();
-	        User user = new User(pair.getKey().toString(), pair.getValue().toString());
-	        retVal.add(user);
-	        it.remove(); // avoids a ConcurrentModificationException
-	    }
-	    return retVal;*/
-		return null;
-	}
+	/*public List<User> getRegisteredUsers(){
+		return registeredUsers;
+	}*/
+	
+	
+	
 	
 }

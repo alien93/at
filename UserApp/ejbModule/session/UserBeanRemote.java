@@ -14,6 +14,6 @@ public interface UserBeanRemote {
 	User register(String username, String password) throws UsernameExistsException;
 	Boolean login(String username, String password) throws InvalidCredentialsException;
 	Boolean logout(User logout);
-	List<User> getAllUsers();
+	UserList getAllUsers();
 	
 }

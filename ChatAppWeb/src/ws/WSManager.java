@@ -20,7 +20,11 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.json.JSONObject;
 
+import entity.Host;
 import entity.User;
+import session.HostsList;
+import session.PropertiesReader;
+import session.UserList;
 
 
 //localhost:8080/ChatAppWeb/websocket
@@ -38,6 +42,7 @@ public class WSManager {
 	}
 	
 	//let the user know that the handshake was successful
+	@SuppressWarnings("unchecked")
 	@OnOpen
 	public void onOpen(Session session){
 		System.out.println(session.getId() + " has opened a connection");
@@ -48,6 +53,32 @@ public class WSManager {
 			session.getBasicRemote().sendText("Connection established...");
 		}catch(IOException e){
 			e.printStackTrace();
+		}
+		
+		//send register request if you're not a master node
+		PropertiesReader pr = new PropertiesReader();
+		String master = pr.getMaster();					//master node address
+		String address = pr.getLocal();
+		String alias = address;							//TODO: something else?
+		if(!master.equals("")){
+			ResteasyClient client = new ResteasyClientBuilder().build();
+			String val = "http://" + master + ":8080/ChatAppWeb/rest/host/register/"+ address + "/"+alias+";address=" + address + ";alias=" + alias;
+			ResteasyWebTarget target = client.target(val);
+			Response response = target.request().get();
+			HostsList ret = response.readEntity(HostsList.class);
+			System.out.println("Registring node result... ");
+			System.out.println(ret);
+			Host.hosts = (List<Host>) ret;
+			
+			//get all users
+			client = new ResteasyClientBuilder().build();
+			val = "http://" + master + ":8080/ChatAppWeb/rest/user/allUsers";
+			target = client.target(val);
+			response = target.request().get();
+			UserList ret1 = response.readEntity(UserList.class);
+			System.out.println("Getting registeres users...");
+			System.out.println(ret1);
+			User.registeredUsers = (List<User>)ret1;
 		}
 	}
 	

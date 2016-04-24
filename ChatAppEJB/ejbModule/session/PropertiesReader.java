@@ -39,10 +39,4 @@ public class PropertiesReader {
 		return local;
 	}
 	
-	
-	
-		
-	
-	
-	
 }
