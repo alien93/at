@@ -63,6 +63,7 @@ public class UserBean implements UserBeanRemote {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Override
 	public Boolean logout(User logout) {
+		System.out.println("hello from logout");
 		Boolean retVal = false;
 		retVal = logout.removeLoggedUser(logout);
 		return retVal;
@@ -73,8 +74,7 @@ public class UserBean implements UserBeanRemote {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Override
 	public List<User> getAllUsers() {
-		User user = new User();
-		return user.getAllUsers();
+		return null;
 	}
 	
 	

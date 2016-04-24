@@ -1,22 +1,22 @@
 package rest;
 
+
+import java.util.HashSet;
 import java.util.Set;
 
+import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
+import session.UserBean;
 
-@javax.ws.rs.ApplicationPath("rest")
+
+@ApplicationPath("rest")
 public class ApplicationConfig extends Application{
 
-	@Override
-	public Set<Class<?>> getClasses(){
-		Set<Class<?>> resources = new java.util.HashSet<>();
-		addRestResourceClasses(resources);
-		return resources;
-	}
-	
-	private void addRestResourceClasses(Set<Class<?>> resources){
-		resources.add(session.UserBean.class);
+	public Set<Class<?>> getClasses() {
+		Set<Class<?>> s = new HashSet<Class<?>>();
+		s.add(UserBean.class);
+		return s;
 	}
 	
 }

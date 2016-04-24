@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.jms.JMSSessionMode;
+
 
 public class User {
 
@@ -107,18 +109,5 @@ public class User {
 		return retVal;
 	}
 	
-	public List<User> getAllUsers(){
-	/*	List<User> retVal = new ArrayList<User>();
-		Iterator<?> it = registeredUsers.entrySet().iterator();
-	    while (it.hasNext()) {
-	        @SuppressWarnings("rawtypes")
-			Map.Entry pair = (Map.Entry)it.next();
-	        User user = new User(pair.getKey().toString(), pair.getValue().toString());
-	        retVal.add(user);
-	        it.remove(); // avoids a ConcurrentModificationException
-	    }
-	    return retVal;*/
-		return null;
-	}
 	
 }
