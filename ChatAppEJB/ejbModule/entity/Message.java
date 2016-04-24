@@ -1,16 +1,22 @@
 package entity;
-
+/**
+ * @author nina
+ */
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
 import entity.User;
 
 public class Message {
 
-	User from;
-	User to;
-	Date date;
-	String subject;
-	String content;
+	private User from;
+	private User to;
+	private Date date;
+	private String subject;
+	private String content;
+	
+	public static HashMap<Host, ArrayList<Message>> messages = new HashMap<>();
 	
 	public Message() {
 	}

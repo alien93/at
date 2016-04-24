@@ -74,7 +74,7 @@ public class UserBean implements UserBeanRemote {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Override
 	public List<User> getAllUsers() {
-		return null;
+		return User.registeredUsers;
 	}
 	
 	
