@@ -2,10 +2,13 @@
 	
 	<p>Welcome, {{username}}</p>
 	<button type="button" class="btn btn-default" ng-click="logout()">Logout</button>
-	
-	<textarea class="form-control" rows="5" cols="50" id="loggedUsers" readonly="true">
 		
-	</textarea>
+	<div>
+		<select size="10" ng-model="loggedUsers" name="loggedUsers" class="form-control" id="loggedUsers">
+			<option ng-repeat="user in loggedUsers">{{user.username}}</option>		
+		</select>
+	</div>
+	
 	<textarea class="form-control" rows="20" cols="50" id="messages" readonly="true"></textarea>
 	
 	<form ng-submit="sendMessage()">

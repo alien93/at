@@ -64,7 +64,9 @@ angular.module('chatApp')
 	])
 	.controller('chatController',['$scope', '$location', function($scope, $location){
 		$scope.username = username;
+		$scope.loggedUsers = [{"username":"test1", "password":"test2"},{"username":"test2", "password":"test3"}];
 		$scope.sendMessage = function(){
+			
 			console.log('sending message');
 		}
 		$scope.logout = function(){

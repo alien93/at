@@ -16,5 +16,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/ChatAppEJB"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/UserApp"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
