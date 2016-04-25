@@ -46,12 +46,12 @@ public class UserBean implements UserBeanRemote {
 	}
 
 	@GET
-	@Path("/login/{username}/{password}")
+	@Path("/login/{username}/{password}/{session}")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Override
-	public Boolean login(@PathParam("username") String username, @PathParam("password") @Encoded String password) throws InvalidCredentialsException {
+	public Boolean login(@PathParam("username") String username, @PathParam("password") @Encoded String password, @PathParam("session")String session) throws InvalidCredentialsException {
 		Boolean retVal = false;
-		User user = new User(username, password, new Host("1", "host1"));
+		User user = new User(username, password, new Host("1", "host1"), session);
 		retVal = user.addLoggedUser(user);
 		if(retVal == true){
 			//putem jms-a javi aplikaciji master cvora da se prijavio novi korisnik
@@ -80,9 +80,19 @@ public class UserBean implements UserBeanRemote {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Override
 	public UserList getAllUsers() {
-		return (UserList)User.registeredUsers;
+		UserList ul = new UserList();
+		ul.setUserList(User.registeredUsers);
+		return ul;
 	}
 	
+	@GET
+	@Path("loggedUsers")
+	@Produces(MediaType.APPLICATION_JSON)
+	public UserList getAllLoggedUsers() {
+		UserList ul = new UserList();
+		ul.setUserList(User.loggedUsers);
+		return ul;
+	}
 	
 	
 }

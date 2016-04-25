@@ -12,8 +12,8 @@ public class UserList {
 		return userList;
 	}
 
-	public void setUserList(List<User> userList) {
-		this.userList = userList;
+	public void setUserList(List<User> loggedUsers) {
+		this.userList = loggedUsers;
 	}
 	
 	

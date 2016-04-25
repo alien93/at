@@ -9,9 +9,18 @@ public class User {
 	private String username;
 	private String password;
 	private Host host;
+	private String sessionID;
 	
+	public String getSessionID() {
+		return sessionID;
+	}
+
+	public void setSessionID(String sessionID) {
+		this.sessionID = sessionID;
+	}
+
 	public static List<User> registeredUsers = new ArrayList<>();
-	public static ArrayList<User> loggedUsers = new ArrayList<>();
+	public static List<User> loggedUsers = new ArrayList<>();
 	
 	
 	public User() {
@@ -22,6 +31,8 @@ public class User {
 	public User(String username, String password){
 		this.username = username;
 		this.password = password;
+		this.host = null;
+		this.sessionID = "";
 	}
 	
 	public User(String username, String password, Host host) {
@@ -29,11 +40,22 @@ public class User {
 		this.username = username;
 		this.password = password;
 		this.host = host;
+		this.sessionID = "";
 	}
+	
+	public User(String username, String password, Host host, String sessionID){
+		this.username = username;
+		this.password = password;
+		this.host = host;
+		this.sessionID = sessionID;
+	}
+	
 	@Override
 	public String toString() {
-		return "{username:" + username + ", password:" + password + ", host:" + host + "}";
+		return "User [username=" + username + ", password=" + password + ", host=" + host + ", sessionID=" + sessionID
+				+ "]";
 	}
+	
 	public String getUsername() {
 		return username;
 	}

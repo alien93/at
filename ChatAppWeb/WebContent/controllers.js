@@ -3,6 +3,7 @@ var webSocket;
 var username = "";
 
 angular.module('chatApp')
+	//login
 	.controller('authController', ['$scope','$rootScope', '$location', '$http',
 	   function($scope, $rootScope, $location, $http){
 		$rootScope.login = function(){
@@ -33,6 +34,7 @@ angular.module('chatApp')
 		}
 	}
 	])
+	//register
 	.controller('regController', ['$scope', '$location',
 	   function($scope, $location, $rootScope, UserFactory){
 		$scope.register = function(){
@@ -62,21 +64,60 @@ angular.module('chatApp')
 		}
 		}
 	])
+	//chat
 	.controller('chatController',['$scope', '$location', function($scope, $location){
+		//get all logged users
+		if(webSocket == undefined)
+			webSocket = new WebSocket("ws://localhost:8080/ChatAppWeb/websocket");
+		
+		if(webSocket.readyState == 1){
+			var text = '{"type":"getLoggedUsers"}';
+			webSocket.send(text);	
+		}
+		
+		webSocket.onmessage  = function(message){
+			console.log(message);
+			if(message.data == "success_loggedUsers"){
+				console.log("logged users retreived successfully")
+			}
+			else if(message.data == "error_loggedUsers"){
+				console.log("could not retreive loggedUsers list")
+			}
+			else{
+				console.log('loggedusers: ' + $scope.loggedUsers);
+				var temp = JSON.parse(message.data);
+				$scope.loggedUsers = temp.userList;
+			}
+		}
+		
+		//set logged users
 		$scope.username = username;
-		$scope.loggedUsers = [{"username":"test1", "password":"test2"}];
 		$scope.selectedValue = "";
 		$scope.selected = function(selectedValue){
 			console.log(selectedValue);
 			$scope.selectedValue = selectedValue;
 		}
+		//send message
 		$scope.sendMessage = function(){
 			console.log('to ' + $scope.selectedValue);
 			console.log('from ' + $scope.username);
 			console.log('date ' +  new Date());
 			console.log('subject ' + $scope.subject);
 			console.log('message ' + $scope.message);
+			
+			
+			if(webSocket == undefined)
+				webSocket = new WebSocket("ws://localhost:8080/ChatAppWeb/websocket");
+			
+			//ukoliko je websocket spreman, posalji poruku
+			if(webSocket.readyState == 1){
+				var text = '{"type":"message", "to":"' + $scope.selectedValue + '", "from":"' + $scope.username + '", "date":"' + new Date() + '", "subject":"' + $scope.subject + '", "message":"' + $scope.message + '"}';
+				webSocket.send(text);	
+			}
+		
+		
 		}
+		
 		$scope.logout = function(){
 			console.log('logout');
 			var text = '{"type":"logout", "username":"' + username + '"}';

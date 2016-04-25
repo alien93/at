@@ -3,7 +3,6 @@ package entity;
  * @author nina
  */
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 
 import entity.User;
@@ -12,7 +11,7 @@ public class Message {
 
 	private User from;
 	private User to;
-	private Date date;
+	private String date;
 	private String subject;
 	private String content;
 	
@@ -21,7 +20,7 @@ public class Message {
 	public Message() {
 	}
 
-	public Message(User from, User to, Date date, String subject, String content) {
+	public Message(User from, User to, String date, String subject, String content) {
 		super();
 		this.from = from;
 		this.to = to;
@@ -46,11 +45,11 @@ public class Message {
 		this.to = to;
 	}
 
-	public Date getDate() {
+	public String getDate() {
 		return date;
 	}
 
-	public void setDate(Date date) {
+	public void setDate(String date) {
 		this.date = date;
 	}
 

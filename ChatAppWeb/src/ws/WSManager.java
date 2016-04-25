@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 
+import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -21,6 +22,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.json.JSONObject;
 
 import entity.Host;
+import entity.Message;
 import entity.User;
 import session.HostsList;
 import session.PropertiesReader;
@@ -82,6 +84,7 @@ public class WSManager {
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@OnMessage
 	public void onMessage(Session session, String message, boolean last){
 		System.out.println("Message from " + session.getId() + ":" + message);
@@ -96,7 +99,7 @@ public class WSManager {
 					usr = username;
 					//rest
 					ResteasyClient client = new ResteasyClientBuilder().build();
-					String val = "http://localhost:8080/ChatAppWeb/rest/user/login/"+ username + "/"+password+";username=" + username + ";password=" + password;
+					String val = "http://localhost:8080/ChatAppWeb/rest/user/login/"+ username + "/"+password+ "/" + session.getId() + ";username=" + username + ";password=" + password + ";session=" + session.getId();
 					ResteasyWebTarget target = client.target(val);
 					Response response = target.request().get();
 					Boolean ret = response.readEntity(Boolean.class);
@@ -109,6 +112,7 @@ public class WSManager {
 					}
 					
 				}
+				//register
 				else if(jsonmsg.getString("type").equals("register")){
 					String username = jsonmsg.getString("username");
 					String password = jsonmsg.getString("password");
@@ -125,6 +129,7 @@ public class WSManager {
 						session.getBasicRemote().sendText("error");
 					}
 				}
+				//logout
 				else if(jsonmsg.getString("type").equals("logout")){
 					String username = jsonmsg.getString("username");
 				
@@ -142,6 +147,41 @@ public class WSManager {
 					}
 					else{
 						session.getBasicRemote().sendText("error");
+					}
+				}
+				//message
+				else if(jsonmsg.getString("type").equals("message")){
+					String to = jsonmsg.getString("to");
+					String from = jsonmsg.getString("from");
+					String date = jsonmsg.getString("date");
+					String subject = jsonmsg.getString("subject");
+					String content = jsonmsg.getString("message");
+					User user = new User();
+					User fromUser = user.getUserByUsername(from);
+					System.out.println("From user: " + from);
+					User toUser = user.getUserByUsername(to);
+					System.out.println("To user: " + to);
+					
+					Message msg = new Message(fromUser, toUser, date, subject, content);
+					System.out.println(msg);
+				}
+				//get loggedUsers
+				else if(jsonmsg.getString("type").equals("getLoggedUsers")){
+					ResteasyClient client = new ResteasyClientBuilder().build();
+					String val = "http://localhost:8080/ChatAppWeb/rest/user/loggedUsers";
+					ResteasyWebTarget target = client.target(val);
+					Response response = target.request().get();
+					UserList ret1 = response.readEntity(UserList.class);
+					if (ret1 != null){
+						session.getBasicRemote().sendText("success_loggedUsers");	
+						try {
+							session.getBasicRemote().sendObject(ret1);
+						} catch (EncodeException e) {
+							e.printStackTrace();
+						}
+					}
+					else{
+						session.getBasicRemote().sendText("error_loggedUsers");
 					}
 				}
 				

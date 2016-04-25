@@ -1,6 +1,5 @@
 package session;
 
-import java.util.List;
 
 import javax.ejb.Remote;
 
@@ -12,7 +11,7 @@ import exception.UsernameExistsException;
 public interface UserBeanRemote {
 
 	User register(String username, String password) throws UsernameExistsException;
-	Boolean login(String username, String password) throws InvalidCredentialsException;
+	Boolean login(String username, String password, String session) throws InvalidCredentialsException;
 	Boolean logout(User logout);
 	UserList getAllUsers();
 	
