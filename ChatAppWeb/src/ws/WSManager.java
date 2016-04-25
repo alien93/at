@@ -24,8 +24,6 @@ import org.json.JSONObject;
 import entity.Host;
 import entity.Message;
 import entity.User;
-import session.HostsList;
-import session.PropertiesReader;
 import session.UserList;
 
 
@@ -84,7 +82,6 @@ public class WSManager {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	@OnMessage
 	public void onMessage(Session session, String message, boolean last){
 		System.out.println("Message from " + session.getId() + ":" + message);
@@ -158,12 +155,22 @@ public class WSManager {
 					String content = jsonmsg.getString("message");
 					User user = new User();
 					User fromUser = user.getUserByUsername(from);
-					System.out.println("From user: " + from);
+					System.out.println("From user: " + fromUser);
 					User toUser = user.getUserByUsername(to);
-					System.out.println("To user: " + to);
+					System.out.println("To user: " + toUser);
+					System.out.println(date);
+					System.out.println(subject);
+					System.out.println(content);
 					
+					//publish message
+					//rest/message/publish
+					//rest
 					Message msg = new Message(fromUser, toUser, date, subject, content);
-					System.out.println(msg);
+					
+					ResteasyClient client = new ResteasyClientBuilder().build();
+					String val = "http://localhost:8080/ChatAppWeb/rest/message/publish";
+					ResteasyWebTarget target = client.target(val);
+					target.request(MediaType.APPLICATION_JSON).post(Entity.entity(msg, MediaType.APPLICATION_JSON));
 				}
 				//get loggedUsers
 				else if(jsonmsg.getString("type").equals("getLoggedUsers")){

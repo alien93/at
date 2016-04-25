@@ -55,7 +55,6 @@ public class HostBean implements HostBeanRemote {
 	public HostsList register(@PathParam("address") String address, @PathParam("alias")String alias) throws AliasExsistsException {
 		Host host = new Host(address, alias);
 		Host.hosts.add(host);
-		Message.messages.put(host, new ArrayList<Message>());	//dodaj host na listu poruka
 		//send register request to other nodes...
 		for(int i=0; i<Host.hosts.size(); i++){
 			if(!Host.hosts.get(i).getAddress().equals(address)){ //ako to nije cvor koji je poslao register zahtev

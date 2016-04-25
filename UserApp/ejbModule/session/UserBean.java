@@ -1,6 +1,8 @@
 package session;
 
 
+import java.util.ArrayList;
+
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.ws.rs.Consumes;
@@ -14,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 
 
 import entity.Host;
+import entity.Message;
 import entity.User;
 import exception.InvalidCredentialsException;
 import exception.UsernameExistsException;
@@ -50,6 +53,7 @@ public class UserBean implements UserBeanRemote {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Override
 	public Boolean login(@PathParam("username") String username, @PathParam("password") @Encoded String password, @PathParam("session")String session) throws InvalidCredentialsException {
+		Message.messages.put(session, new ArrayList<Message>());	//dodaj host na listu poruka
 		Boolean retVal = false;
 		User user = new User(username, password, new Host("1", "host1"), session);
 		retVal = user.addLoggedUser(user);
@@ -57,6 +61,8 @@ public class UserBean implements UserBeanRemote {
 			//putem jms-a javi aplikaciji master cvora da se prijavio novi korisnik
 
 		}
+		System.out.println("here are messages");
+		System.out.println(Message.messages);
 		return retVal;
 	}
 

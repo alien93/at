@@ -2,7 +2,6 @@ package session;
 /**
  * @author nina
  */
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -11,10 +10,8 @@ import javax.ejb.Stateless;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
-import entity.Host;
 import entity.Message;
 import entity.User;
-
 /**
  * Session Bean implementation class MessageBean
  */
@@ -31,25 +28,31 @@ public class MessageBean implements MessageBeanRemote {
 	 * jeste Host primalaca poruke. Cvor prihvata poruku i prosledjuje je sesiji koja
 	 * je vezana za primalaca poruke.
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "rawtypes" })
 	@POST
 	@Path("publish")
 	@Override
 	public void publish(Message message) {
 		User to = message.getTo();
+		System.out.println("to: " + to);
 		User from = message.getFrom();
+		System.out.println("from: " + from);
 		
+		System.out.println("here are all messages from message bean:");
+		System.out.println(Message.messages);
 		Iterator it = Message.messages.entrySet().iterator();
 		while (it.hasNext()) {
 		    Map.Entry pair = (Map.Entry)it.next();
-		    Host h = (Host)pair.getKey();
-		    ArrayList<Message> msgs = (ArrayList<Message>)pair.getValue();
-		    if(to.getHost().equals(h) ||  from.getHost().equals(h))	//dodaj i poruke koje si ti slao drugima
+		    String session = (String) pair.getKey();
+		    if(to.getSessionID().equals(session) ||  from.getSessionID().equals(session))	//dodaj i poruke koje si ti slao drugima
 		    {
-		    	msgs.add(message);
+		    	Message.messages.get(session).add(message);
 		    }
 		    it.remove();
 		}
+		
+		System.out.println("Messages for " + to.getUsername() + Message.messages.get(to.getSessionID()));
+		System.out.println("Messages for " + from.getUsername() + Message.messages.get(from.getSessionID()));
 		
 	}
 
