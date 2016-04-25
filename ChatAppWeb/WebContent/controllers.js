@@ -64,10 +64,18 @@ angular.module('chatApp')
 	])
 	.controller('chatController',['$scope', '$location', function($scope, $location){
 		$scope.username = username;
-		$scope.loggedUsers = [{"username":"test1", "password":"test2"},{"username":"test2", "password":"test3"}];
+		$scope.loggedUsers = [{"username":"test1", "password":"test2"}];
+		$scope.selectedValue = "";
+		$scope.selected = function(selectedValue){
+			console.log(selectedValue);
+			$scope.selectedValue = selectedValue;
+		}
 		$scope.sendMessage = function(){
-			
-			console.log('sending message');
+			console.log('to ' + $scope.selectedValue);
+			console.log('from ' + $scope.username);
+			console.log('date ' +  new Date());
+			console.log('subject ' + $scope.subject);
+			console.log('message ' + $scope.message);
 		}
 		$scope.logout = function(){
 			console.log('logout');

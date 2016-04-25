@@ -4,15 +4,17 @@
 	<button type="button" class="btn btn-default" ng-click="logout()">Logout</button>
 		
 	<div>
-		<select size="10" ng-model="loggedUsers" name="loggedUsers" class="form-control" id="loggedUsers">
+		<select size="10" ng-model="selectedValue" class="form-control" ng-change="selected(selectedValue)">
+			<option value="" selected>Send to everybody</option>
 			<option ng-repeat="user in loggedUsers">{{user.username}}</option>		
 		</select>
 	</div>
 	
-	<textarea class="form-control" rows="20" cols="50" id="messages" readonly="true"></textarea>
+	<textarea class="form-control" rows="10" cols="50" id="messages" readonly="true"></textarea>
 	
 	<form ng-submit="sendMessage()">
-		<input type="text" ng-model="message" placeholder="Message" class="form-control" required>
+		<input type="text" ng-model="subject" placeholder="Subject" class="form-control" required>
+		<textarea rows="5" type="text" ng-model="message" placeholder="Message" class="form-control" required></textarea>
 		<input type="submit" value="Send" class="btn btn-primary">
 	</form>
 </div>
