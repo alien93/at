@@ -7,11 +7,13 @@ import java.util.Map;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 
-import entity.Message;
-import entity.User;
+import model.Message;
+import model.User;
 /**
  * Session Bean implementation class MessageBean
  */
@@ -46,15 +48,29 @@ public class MessageBean implements MessageBeanRemote {
 		    String session = (String) pair.getKey();
 		    if(to.getSessionID().equals(session) ||  from.getSessionID().equals(session))	//dodaj i poruke koje si ti slao drugima
 		    {
+		    	System.out.println("for session: " + session);
+		    	System.out.println(Message.messages.get(session));
 		    	Message.messages.get(session).add(message);
+		    	
 		    }
-		    it.remove();
 		}
+		System.out.println("here are all messages from message bean:");
+		System.out.println(Message.messages);
 		
 		System.out.println("Messages for " + to.getUsername() + Message.messages.get(to.getSessionID()));
 		System.out.println("Messages for " + from.getUsername() + Message.messages.get(from.getSessionID()));
 		
 	}
-
+	
+	@GET
+	@Path("/messagesForUser/{username}")
+	public MessageList getMessagesForUser(@PathParam("username") String username){
+		MessageList retVal = new MessageList();
+		User u = new User();
+		u = u.getUserByUsername(username);
+		retVal.setMessages(Message.messages.get(u.getSessionID()));
+		System.out.println("Messages for user: " + username + " ::" + retVal);
+		return retVal;
+	}
 
 }

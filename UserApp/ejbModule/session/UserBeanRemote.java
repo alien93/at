@@ -3,7 +3,7 @@ package session;
 
 import javax.ejb.Remote;
 
-import entity.User;
+import model.User;
 import exception.InvalidCredentialsException;
 import exception.UsernameExistsException;
 

@@ -2,7 +2,7 @@ package ws;
 
 import java.util.List;
 
-import entity.Host;
+import model.Host;
 
 public class HostsList {
 

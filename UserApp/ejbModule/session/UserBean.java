@@ -15,9 +15,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 
-import entity.Host;
-import entity.Message;
-import entity.User;
+import model.Host;
+import model.Message;
+import model.User;
 import exception.InvalidCredentialsException;
 import exception.UsernameExistsException;
 

@@ -5,6 +5,7 @@
 	<projects>
 		<project>ChatAppWeb</project>
 		<project>ChatAppEJB</project>
+		<project>Helper</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

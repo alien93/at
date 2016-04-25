@@ -3,8 +3,8 @@ package session;
 
 import javax.ejb.Remote;
 
-import entity.Host;
-import entity.User;
+import model.Host;
+import model.User;
 import exception.AliasExsistsException;
 
 @Remote

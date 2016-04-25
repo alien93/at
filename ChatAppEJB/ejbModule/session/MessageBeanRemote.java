@@ -2,7 +2,7 @@ package session;
 
 import javax.ejb.Remote;
 
-import entity.Message;
+import model.Message;
 
 @Remote
 public interface MessageBeanRemote {

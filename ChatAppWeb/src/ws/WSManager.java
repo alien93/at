@@ -21,9 +21,9 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.json.JSONObject;
 
-import entity.Host;
-import entity.Message;
-import entity.User;
+import model.Host;
+import model.Message;
+import model.User;
 import session.UserList;
 
 

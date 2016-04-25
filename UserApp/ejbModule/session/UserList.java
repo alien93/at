@@ -2,7 +2,7 @@ package session;
 
 import java.util.List;
 
-import entity.User;
+import model.User;
 
 public class UserList {
 
