@@ -92,6 +92,7 @@ public class MessageBean implements MessageBeanRemote {
 	public MessageList getMessagesForSession(@PathParam("session") String session){
 		MessageList retVal = new MessageList();
 		retVal.setMessages(Message.messages.get(session));
+		System.out.println("Here are message for session " + session + ": " + Message.messages.get(session).toString());
 		return retVal;
 	}
 

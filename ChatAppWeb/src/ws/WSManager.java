@@ -38,6 +38,9 @@ public class WSManager {
 	Timer t = new Timer();
 	String usr = "";
 	private static WSManager instance  = new WSManager();
+	String master = "";
+	String address = "";
+	String alias = "";
 	
 	public WSManager(){
 		
@@ -63,9 +66,9 @@ public class WSManager {
 		
 		//send register request if you're not a master node
 		PropertiesReader pr = new PropertiesReader();
-		String master = pr.getMaster();					//master node address
-		String address = pr.getLocal();
-		String alias = address;							//TODO: something else?
+		master = pr.getMaster();					//master node address
+		address = pr.getLocal();
+		alias = address;							//TODO: something else?
 		if(!master.equals("")){
 			ResteasyClient client = new ResteasyClientBuilder().build();
 			String val = "http://" + master + ":8080/ChatAppWeb/rest/host/register/"+ address + "/"+alias+";address=" + address + ";alias=" + alias;
@@ -177,12 +180,59 @@ public class WSManager {
 					//rest/message/publish
 					//rest
 					if(toUser!=null){
-						Message msg = new Message(fromUser, toUser, date, subject, content);
+						//poruka je privatna, proveri da li je host primaoca trenutni cvor
+						//TODO
+						//if(!address.equals("") && toUser.getHost().getAddress().equals(address)){
+							//ukoliko host primaoca jeste trenutni cvor, putem websocket-a prikazi poruku datom korisniku
+							
+							Session ses = null;
+							for(Session s : sessions){
+								if(s.getId().equals(toUser.getSessionID())){
+									ses = s;
+									break;
+								}
+							}
+						
+							//publish it
+							Message msg = new Message(fromUser, toUser, date, subject, content);
+							//String ip = toUser.getHost().getAddress();
+							String ip = "localhost";
+							ResteasyClient client = new ResteasyClientBuilder().build();
+							String val = "http://"+ ip +":8080/ChatAppWeb/rest/message/publish";
+							ResteasyWebTarget target = client.target(val);
+							Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(msg, MediaType.APPLICATION_JSON));
+							Boolean ret = response.readEntity(Boolean.class);
+							if (ret == true){
+								//session.getBasicRemote().sendText("success");	
+								//addUsers();
+								ses.getBasicRemote().sendText("success_message");
+								sendAMessage(toUser, ses);
+								System.out.println("[WS] true");
+							}
+							else{
+								//session.getBasicRemote().sendText("error");
+								ses.getBasicRemote().sendText("error_message");	
+								System.out.println("[WS] false");
+							}
+						
+							
+						
+						
+						
+						
+						
+						
+							
+						//}
+						/*Message msg = new Message(fromUser, toUser, date, subject, content);
 						
 						ResteasyClient client = new ResteasyClientBuilder().build();
 						String val = "http://localhost:8080/ChatAppWeb/rest/message/publish";
 						ResteasyWebTarget target = client.target(val);
 						target.request(MediaType.APPLICATION_JSON).post(Entity.entity(msg, MediaType.APPLICATION_JSON));
+						
+						*/
+						
 					}
 					else{
 						//formiraj publish zahtev za svaki cvor u cluster-u
@@ -292,6 +342,33 @@ public class WSManager {
 			else{
 				session.getBasicRemote().sendText("error_message");
 			}
+		}
+	}
+	
+	public void sendAMessage(User toUser, Session ses){
+		try{
+			ResteasyClient client = new ResteasyClientBuilder().build();
+			String val = "http://localhost:8080/ChatAppWeb/rest/message/messagesForSession/"+ toUser.getSessionID() +";session=" + toUser.getSessionID();
+			ResteasyWebTarget target = client.target(val);
+			Response response = target.request().get();
+			System.out.println("Response: " + response);
+			MessageList ret1 = response.readEntity(MessageList.class);
+			System.out.println("creating list for session: " + ses.getId());
+			if(ses!=null){
+				if (ret1 != null){
+					ses.getBasicRemote().sendText("success_message");	
+					try {
+						ses.getBasicRemote().sendObject(ret1);
+					} catch (EncodeException e) {
+						e.printStackTrace();
+					}
+				}
+				else{
+					ses.getBasicRemote().sendText("error_message");
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
 		}
 	}
 	
