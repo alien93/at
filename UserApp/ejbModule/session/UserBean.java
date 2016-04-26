@@ -3,20 +3,10 @@ package session;
 
 import java.util.ArrayList;
 
-import javax.annotation.Resource;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Encoded;
 import javax.ws.rs.GET;
@@ -79,13 +69,13 @@ public class UserBean implements UserBeanRemote {
 	public Boolean login(@PathParam("username") String username, @PathParam("password") @Encoded String password, @PathParam("session")String session) throws InvalidCredentialsException {
 		Message.messages.put(session, new ArrayList<Message>());	//dodaj host na listu poruka
 		Boolean retVal = false;
-		User user = new User(username, password, new Host("1", "host1"), session);
+		User user = new User(username, password, new Host(session, session), session);
 		retVal = user.addLoggedUser(user);
 		if(retVal == true){
 			//putem jms-a javi aplikaciji master cvora da se prijavio novi korisnik
 			try {
 				//sender.sendMessage("Prijavio se novi korisnik: " + user.getUsername());
-				sender.sendMessage(user);
+				sender.sendMessage(user, "login");
 			} catch (JMSException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -109,7 +99,13 @@ public class UserBean implements UserBeanRemote {
 		retVal = logout.removeLoggedUser(logout);
 		if(retVal == true){
 			//putem jms-a javi aplikaciji master cvora da se korisnik odjavio
-			
+			try {
+				//sender.sendMessage("Prijavio se novi korisnik: " + user.getUsername());
+				sender.sendMessage(logout, "logout");
+			} catch (JMSException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		return retVal;
 	}

@@ -5,13 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 
-import javax.annotation.Resource;
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.MessageProducer;
-import javax.jms.Queue;
-import javax.jms.TextMessage;
+
 import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -31,7 +25,6 @@ import org.json.JSONObject;
 import model.Host;
 import model.Message;
 import model.User;
-import session.MySender;
 import session.UserList;
 
 
@@ -41,13 +34,17 @@ import session.UserList;
 @ServerEndpoint(value="/websocket", encoders={UserEncoder.class})
 public class WSManager {
 
-	List<Session> sessions = new ArrayList<Session>();
+	private static List<Session> sessions = new ArrayList<Session>();
 	Timer t = new Timer();
 	String usr = "";
-	
+	private static WSManager instance  = new WSManager();
 	
 	public WSManager(){
 		
+	}
+	
+	public static WSManager getInstance(){
+		return instance;
 	}
 	
 	//let the user know that the handshake was successful
@@ -152,6 +149,7 @@ public class WSManager {
 					Boolean ret = response.readEntity(Boolean.class);
 					if (ret == true){
 						session.getBasicRemote().sendText("success");	
+						addUsers();
 					}
 					else{
 						session.getBasicRemote().sendText("error");
@@ -185,32 +183,14 @@ public class WSManager {
 				}
 				//get loggedUsers
 				else if(jsonmsg.getString("type").equals("getLoggedUsers")){
-					ResteasyClient client = new ResteasyClientBuilder().build();
-					String val = "http://localhost:8080/ChatAppWeb/rest/user/loggedUsers";
-					ResteasyWebTarget target = client.target(val);
-					Response response = target.request().get();
-					UserList ret1 = response.readEntity(UserList.class);
-					if (ret1 != null){
-						session.getBasicRemote().sendText("success_loggedUsers");	
-						try {
-							session.getBasicRemote().sendObject(ret1);
-						} catch (EncodeException e) {
-							e.printStackTrace();
-						}
-					}
-					else{
-						session.getBasicRemote().sendText("error_loggedUsers");
-					}
+					addUsers();
 				}
-				
-					
-					//create REST or JMS request to UserApp
-			
-				for(Session s: sessions){
+							
+				/*for(Session s: sessions){
 					if(!s.getId().equals(session.getId())){
 						s.getBasicRemote().sendText(message, last);
 					}
-				}
+				}*/
 			}
 		}catch(IOException e){
 			try{
@@ -242,5 +222,26 @@ public class WSManager {
 		t.printStackTrace();
 	}
 	
+	public void addUsers() throws IOException{
+		for (Session session : sessions){
+			ResteasyClient client = new ResteasyClientBuilder().build();
+			String val = "http://localhost:8080/ChatAppWeb/rest/user/loggedUsers";
+			ResteasyWebTarget target = client.target(val);
+			Response response = target.request().get();
+			UserList ret1 = response.readEntity(UserList.class);
+			System.out.println("creating list for session: " + session.getId());
+			if (ret1 != null){
+				session.getBasicRemote().sendText("success_loggedUsers");	
+				try {
+					session.getBasicRemote().sendObject(ret1);
+				} catch (EncodeException e) {
+					e.printStackTrace();
+				}
+			}
+			else{
+				session.getBasicRemote().sendText("error_loggedUsers");
+			}
+		}
+	}
 	
 }

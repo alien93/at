@@ -61,7 +61,7 @@ public class MySender implements MySenderLocal {
 	}
 
 	@Override
-	public void sendMessage(Object obj) throws JMSException {
+	public void sendMessage(Object obj, String msgType) throws JMSException {
 		try{
 			Context context = new InitialContext();
 			ConnectionFactory factory = (ConnectionFactory) context.lookup("java:/ConnectionFactory");
@@ -75,9 +75,16 @@ public class MySender implements MySenderLocal {
 					Session session  = con.createSession(false,  Session.AUTO_ACKNOWLEDGE);
 					MessageProducer producer = session.createProducer(target);
 					if(obj instanceof User){
-						ObjectMessage message = session.createObjectMessage((User)obj);
-						message.setJMSType("login");
-						producer.send(message);
+						if(msgType.equals("login")){
+							ObjectMessage message = session.createObjectMessage((User)obj);
+							message.setJMSType("login");
+							producer.send(message);
+						}
+						else if(msgType.equals("logout")){
+							ObjectMessage message = session.createObjectMessage((User)obj);
+							message.setJMSType("logout");
+							producer.send(message);
+						}
 					}
 				}
 				finally{

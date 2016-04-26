@@ -76,19 +76,21 @@ angular.module('chatApp')
 		}
 		
 		webSocket.onmessage  = function(message){
-			console.log(message);
-			if(message.data == "success_loggedUsers"){
-				console.log("logged users retreived successfully")
-			}
-			else if(message.data == "error_loggedUsers"){
-				console.log("could not retreive loggedUsers list")
-			}
-			else{
-				console.log('loggedusers: ' + $scope.loggedUsers);
-				var temp = JSON.parse(message.data);
-				$scope.loggedUsers = temp.userList;
-				$scope.$apply();
-			}
+			$scope.$apply(function(){
+				console.log(message);
+				if(message.data == "success_loggedUsers"){
+					console.log("logged users retreived successfully")
+				}
+				else if(message.data == "error_loggedUsers"){
+					console.log("could not retreive loggedUsers list")
+				}
+				else{
+					console.log('loggedusers: ' + $scope.loggedUsers);
+					var temp = JSON.parse(message.data);
+					$scope.loggedUsers = temp.userList;
+					//$scope.$apply();
+				}
+			});
 		}
 		
 		//set logged users
