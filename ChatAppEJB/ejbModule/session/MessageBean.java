@@ -11,7 +11,10 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
+import model.Host;
 import model.Message;
 import model.User;
 /**
@@ -34,32 +37,42 @@ public class MessageBean implements MessageBeanRemote {
 	@POST
 	@Path("publish")
 	@Override
-	public void publish(Message message) {
+	public Boolean publish(Message message) {
+		Boolean retVal = false;
 		User to = message.getTo();
-		System.out.println("to: " + to);
-		User from = message.getFrom();
-		System.out.println("from: " + from);
-		
-		System.out.println("here are all messages from message bean:");
-		System.out.println(Message.messages);
-		Iterator it = Message.messages.entrySet().iterator();
-		while (it.hasNext()) {
-		    Map.Entry pair = (Map.Entry)it.next();
-		    String session = (String) pair.getKey();
-		    if(to.getSessionID().equals(session) ||  from.getSessionID().equals(session))	//dodaj i poruke koje si ti slao drugima
-		    {
-		    	System.out.println("for session: " + session);
-		    	System.out.println(Message.messages.get(session));
-		    	Message.messages.get(session).add(message);
-		    	
-		    }
+		if(to!=null){
+			int counter = 0;
+			User from = message.getFrom();
+			
+			Iterator it = Message.messages.entrySet().iterator();
+			while (it.hasNext()) {
+			    Map.Entry pair = (Map.Entry)it.next();
+			    String session = (String) pair.getKey();
+			    if(to.getSessionID().equals(session) ||  from.getSessionID().equals(session))	//dodaj i poruke koje si ti slao drugima
+			    {
+			    	Message.messages.get(session).add(message);
+			    	counter++;
+			    }
+			}
+			if(counter==2){
+				retVal = true;
+			}
 		}
-		System.out.println("here are all messages from message bean:");
-		System.out.println(Message.messages);
-		
-		System.out.println("Messages for " + to.getUsername() + Message.messages.get(to.getSessionID()));
-		System.out.println("Messages for " + from.getUsername() + Message.messages.get(from.getSessionID()));
-		
+		else{
+			int counter = 0;
+			
+			Iterator it = Message.messages.entrySet().iterator();
+			while (it.hasNext()) {
+			    Map.Entry pair = (Map.Entry)it.next();
+			    String session = (String) pair.getKey();
+			    Message.messages.get(session).add(message);
+			    counter++;
+			}
+			if(counter==Message.messages.size()){
+				retVal = true;
+			}
+		}
+		return retVal;
 	}
 	
 	@GET
@@ -70,6 +83,15 @@ public class MessageBean implements MessageBeanRemote {
 		u = u.getUserByUsername(username);
 		retVal.setMessages(Message.messages.get(u.getSessionID()));
 		System.out.println("Messages for user: " + username + " ::" + retVal);
+		return retVal;
+	}
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Path("/messagesForSession/{session}")
+	public MessageList getMessagesForSession(@PathParam("session") String session){
+		MessageList retVal = new MessageList();
+		retVal.setMessages(Message.messages.get(session));
 		return retVal;
 	}
 

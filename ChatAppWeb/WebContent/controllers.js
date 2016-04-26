@@ -76,8 +76,8 @@ angular.module('chatApp')
 		}
 		
 		webSocket.onmessage  = function(message){
+			console.log("-1- " + message);
 			$scope.$apply(function(){
-				console.log(message);
 				if(message.data == "success_loggedUsers"){
 					console.log("logged users retreived successfully")
 				}
@@ -85,10 +85,21 @@ angular.module('chatApp')
 					console.log("could not retreive loggedUsers list")
 				}
 				else{
-					console.log('loggedusers: ' + $scope.loggedUsers);
 					var temp = JSON.parse(message.data);
-					$scope.loggedUsers = temp.userList;
-					//$scope.$apply();
+					console.log("-2- " + temp.userList);
+					if(temp.userList!=null){
+						console.log('loggedusers: ' + $scope.loggedUsers);
+						var temp = JSON.parse(message.data);
+						$scope.loggedUsers = temp.userList;
+						//$scope.$apply();
+					}
+					else{
+						console.log('received messages: ');
+						var temp = JSON.parse(message.data);
+						console.log(temp);
+						$scope.messages = temp.messages;
+						console.log("messages: " + $scope.messages);
+					}
 				}
 			});
 		}
@@ -117,8 +128,36 @@ angular.module('chatApp')
 				var text = '{"type":"message", "to":"' + $scope.selectedValue + '", "from":"' + $scope.username + '", "date":"' + new Date() + '", "subject":"' + $scope.subject + '", "message":"' + $scope.message + '"}';
 				webSocket.send(text);	
 			}
-		
-		
+			
+			webSocket.onmessage  = function(message){
+				$scope.$apply(function(){
+					console.log(message);
+					if(message.data == "success_message"){
+						console.log("message has been sent")
+					}
+					else if(message.data == "error_message"){
+						console.log("error while delivering the message")
+					}
+					else{
+						var temp = JSON.parse(message.data);
+						console.log("-2- " + temp.userList);
+						if(temp.userList!=null){
+							console.log('loggedusers: ' + $scope.loggedUsers);
+							var temp = JSON.parse(message.data);
+							$scope.loggedUsers = temp.userList;
+							//$scope.$apply();
+						}
+						else{
+							console.log('received messages: ');
+							var temp = JSON.parse(message.data);
+							console.log(temp);
+							$scope.messages = temp.messages;
+							console.log("messages: " + $scope.messages);
+						}
+					}
+				});
+			}
+			
 		}
 		
 		$scope.logout = function(){

@@ -7,6 +7,6 @@ import model.Message;
 @Remote
 public interface MessageBeanRemote {
 
-	void publish(Message message);
+	Boolean publish(Message message);
 	
 }
