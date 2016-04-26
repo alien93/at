@@ -3,8 +3,20 @@ package session;
 
 import java.util.ArrayList;
 
+import javax.annotation.Resource;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Encoded;
 import javax.ws.rs.GET;
@@ -28,6 +40,8 @@ import exception.UsernameExistsException;
 @LocalBean
 @Path("user")
 public class UserBean implements UserBeanRemote {
+	
+
 
 	@GET
 	@Path("test")
@@ -45,6 +59,13 @@ public class UserBean implements UserBeanRemote {
 		User retVal = new User(username, password);
 		retVal.addRegisteredUser(username, password);
 		System.out.println("hello from register");
+		MySender sender = new MySender();
+		try {
+			sender.sendMessage("sending my message..........");
+		} catch (JMSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return retVal;
 	}
 
@@ -59,7 +80,6 @@ public class UserBean implements UserBeanRemote {
 		retVal = user.addLoggedUser(user);
 		if(retVal == true){
 			//putem jms-a javi aplikaciji master cvora da se prijavio novi korisnik
-
 		}
 		System.out.println("here are messages");
 		System.out.println(Message.messages);
@@ -77,6 +97,7 @@ public class UserBean implements UserBeanRemote {
 		retVal = logout.removeLoggedUser(logout);
 		if(retVal == true){
 			//putem jms-a javi aplikaciji master cvora da se korisnik odjavio
+			
 		}
 		return retVal;
 	}

@@ -5,6 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 
+import javax.annotation.Resource;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.TextMessage;
 import javax.websocket.EncodeException;
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
@@ -24,6 +31,7 @@ import org.json.JSONObject;
 import model.Host;
 import model.Message;
 import model.User;
+import session.MySender;
 import session.UserList;
 
 
@@ -36,6 +44,7 @@ public class WSManager {
 	List<Session> sessions = new ArrayList<Session>();
 	Timer t = new Timer();
 	String usr = "";
+	
 	
 	public WSManager(){
 		
@@ -89,6 +98,8 @@ public class WSManager {
 			if(session.isOpen()){
 				//check if login			
 			JSONObject jsonmsg = new JSONObject(message);
+			MySender sender = new MySender();
+
 				//login
 				if(jsonmsg.getString("type").equals("login")){
 					String username = jsonmsg.getString("username");
@@ -111,7 +122,7 @@ public class WSManager {
 				}
 				//register
 				else if(jsonmsg.getString("type").equals("register")){
-					String username = jsonmsg.getString("username");
+					/*String username = jsonmsg.getString("username");
 					String password = jsonmsg.getString("password");
 					//rest
 					ResteasyClient client = new ResteasyClientBuilder().build();
@@ -124,6 +135,12 @@ public class WSManager {
 					}
 					else{
 						session.getBasicRemote().sendText("error");
+					}*/
+					try {
+						sender.sendMessage("1568465asd68f46a5e4f6a8e46f5a4e98fa4e654afe86a84fe6afe48fMEEEEEESSSSSAAAAAAAGGGGGGGEEEEEEE!!!!!!!");
+					} catch (JMSException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
 				}
 				//logout

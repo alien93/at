@@ -1,14 +1,11 @@
 package session;
-import java.net.Socket;
 /**
  * @author nina
  */
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
-import javax.websocket.WebSocketContainer;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
