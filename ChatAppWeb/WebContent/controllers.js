@@ -87,6 +87,7 @@ angular.module('chatApp')
 				console.log('loggedusers: ' + $scope.loggedUsers);
 				var temp = JSON.parse(message.data);
 				$scope.loggedUsers = temp.userList;
+				$scope.$apply();
 			}
 		}
 		

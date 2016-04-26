@@ -41,7 +41,7 @@ import exception.UsernameExistsException;
 @Path("user")
 public class UserBean implements UserBeanRemote {
 	
-
+	private MySenderLocal sender = new MySender();
 
 	@GET
 	@Path("test")
@@ -59,13 +59,16 @@ public class UserBean implements UserBeanRemote {
 		User retVal = new User(username, password);
 		retVal.addRegisteredUser(username, password);
 		System.out.println("hello from register");
-		MySender sender = new MySender();
-		try {
-			sender.sendMessage("sending my message..........");
+		
+		//JMS CALL
+		/*try {
+			sender.sendMessage("1568465asd68f46a5e4f6a8e46f5a4e98fa4e654afe86a84fe6afe48fMEEEEEESSSSSAAAAAAAGGGGGGGEEEEEEE!!!!!!!");
 		} catch (JMSException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
+		
+		
 		return retVal;
 	}
 
@@ -80,6 +83,15 @@ public class UserBean implements UserBeanRemote {
 		retVal = user.addLoggedUser(user);
 		if(retVal == true){
 			//putem jms-a javi aplikaciji master cvora da se prijavio novi korisnik
+			try {
+				//sender.sendMessage("Prijavio se novi korisnik: " + user.getUsername());
+				sender.sendMessage(user);
+			} catch (JMSException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
 		}
 		System.out.println("here are messages");
 		System.out.println(Message.messages);

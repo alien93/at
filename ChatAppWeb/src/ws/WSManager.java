@@ -98,7 +98,6 @@ public class WSManager {
 			if(session.isOpen()){
 				//check if login			
 			JSONObject jsonmsg = new JSONObject(message);
-			MySender sender = new MySender();
 
 				//login
 				if(jsonmsg.getString("type").equals("login")){
@@ -122,7 +121,7 @@ public class WSManager {
 				}
 				//register
 				else if(jsonmsg.getString("type").equals("register")){
-					/*String username = jsonmsg.getString("username");
+					String username = jsonmsg.getString("username");
 					String password = jsonmsg.getString("password");
 					//rest
 					ResteasyClient client = new ResteasyClientBuilder().build();
@@ -135,13 +134,8 @@ public class WSManager {
 					}
 					else{
 						session.getBasicRemote().sendText("error");
-					}*/
-					try {
-						sender.sendMessage("1568465asd68f46a5e4f6a8e46f5a4e98fa4e654afe86a84fe6afe48fMEEEEEESSSSSAAAAAAAGGGGGGGEEEEEEE!!!!!!!");
-					} catch (JMSException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
 					}
+					
 				}
 				//logout
 				else if(jsonmsg.getString("type").equals("logout")){

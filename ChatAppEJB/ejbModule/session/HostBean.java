@@ -1,4 +1,7 @@
 package session;
+import java.io.IOException;
+import java.net.Socket;
+import java.net.URI;
 /**
  * @author nina
  */
@@ -6,6 +9,11 @@ import java.util.List;
 
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.jms.Session;
+import javax.websocket.ContainerProvider;
+import javax.websocket.DeploymentException;
+import javax.websocket.WebSocketContainer;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -21,6 +29,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import model.Host;
 import model.Message;
 import model.User;
+import ws.WSManager;
 import exception.AliasExsistsException;
 
 /**
@@ -85,10 +94,31 @@ public class HostBean implements HostBeanRemote {
 	 * @param user
 	 */
 	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("addUser")
 	@Override
 	public void addUser(User user) {
+		System.out.println("Adding user " + user.getUsername() + " to logged users...");
 		Host.loggedUsers.add(user);
+		/*
+		 * if(webSocket == undefined)
+			webSocket = new WebSocket("ws://localhost:8080/ChatAppWeb/websocket");
+		
+		if(webSocket.readyState == 1){
+			var text = '{"type":"getLoggedUsers"}';
+			webSocket.send(text);	
+		}
+		 * */
+		/*WebSocketContainer container = ContainerProvider.getWebSocketContainer();
+		javax.websocket.Session session;
+		try {
+			session = container.connectToServer(WSManager.class, URI.create("ws://localhost:8080/ChatAppWeb/websocket"));
+			session.getBasicRemote().sendText("{\"type\":\"getLoggedUsers\"}");
+
+		} catch (DeploymentException | IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}*/
 	}
 
 	@POST
