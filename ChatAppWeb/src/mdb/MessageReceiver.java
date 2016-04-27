@@ -151,7 +151,7 @@ public class MessageReceiver implements MessageListener {
 						User retVal = null;
 						try {
 							retVal = ub.register(user.getUsername(), user.getPassword());
-							System.out.println("User added? " + retVal!=null?true:false);
+							System.out.println("User registered? " + retVal!=null?true:false);
 						} catch (UsernameExistsException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
@@ -175,6 +175,48 @@ public class MessageReceiver implements MessageListener {
 							e.printStackTrace();
 						}
 						System.out.println("[/MessageReceiver]");
+					}catch(JMSException e){
+						e.printStackTrace();
+					}
+				}
+				else if(msg.getJMSType().equals("logout_jms")){
+					try{
+						System.out.println("[MessageReceiver]");
+						String sessionID = msg.getStringProperty("json");
+						System.out.println("Session: " + sessionID);
+						User user = (User)obj.getObject();
+						System.out.println("User:" + user.toString());
+						UserBean ub = new UserBean();
+						Boolean retVal = false;
+						retVal = ub.logout(user);
+						System.out.println("User removed? " + retVal!=null?true:false);
+						
+						javax.websocket.Session session = null;
+						//finding the session
+						for(javax.websocket.Session s: WSManager.sessions){
+							if(s.getId().equals(sessionID)){
+								session = s;
+								break;
+							}
+						}
+						
+						try {
+							if(retVal!=null && session!=null)
+								session.getBasicRemote().sendText("success");
+							else
+								session.getBasicRemote().sendText("error");
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						System.out.println("[/MessageReceiver]");
+						try {
+							WSManager.getInstance().addUsers();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						
 					}catch(JMSException e){
 						e.printStackTrace();
 					}

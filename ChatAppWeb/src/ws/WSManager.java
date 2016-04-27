@@ -264,12 +264,7 @@ public class WSManager {
 					else if(jsonmsg.getString("type").equals("getLoggedUsers")){
 						addUsers();
 					}
-								
-					/*for(Session s: sessions){
-						if(!s.getId().equals(session.getId())){
-							s.getBasicRemote().sendText(message, last);
-						}
-					}*/
+					
 				}
 				else{	//userapp and chatapp are not on the same node, using jms...
 					System.out.println("Sending as jms...");
@@ -311,7 +306,7 @@ public class WSManager {
 						user = user.getUserByUsername(username);
 						
 						//rest
-						ResteasyClient client = new ResteasyClientBuilder().build();
+						/*ResteasyClient client = new ResteasyClientBuilder().build();
 						String val = "http://localhost:8080/ChatAppWeb/rest/user/logout";
 						ResteasyWebTarget target = client.target(val);
 						Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(user, MediaType.APPLICATION_JSON));
@@ -322,7 +317,14 @@ public class WSManager {
 						}
 						else{
 							session.getBasicRemote().sendText("error");
+						}*/
+						try{
+							sender.sendMessage(user, session.getId(), "logout_jms");
+						}catch(JMSException e){
+							e.printStackTrace();
 						}
+						
+						
 					}
 					//message
 					else if(jsonmsg.getString("type").equals("message")){

@@ -116,9 +116,10 @@ public class MySender implements MySenderLocal {
 							message.setStringProperty("json", sessionId);
 							producer.send(message);
 						}
-						else if(msgType.equals("logout")){
+						else if(msgType.equals("logout_jms")){
 							ObjectMessage message = session.createObjectMessage((User)obj);
-							message.setJMSType("logout");
+							message.setJMSType("logout_jms");
+							message.setStringProperty("json", sessionId);
 							producer.send(message);
 						}
 						else if(msgType.equals("register_jms")){
