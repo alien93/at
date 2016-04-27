@@ -46,20 +46,24 @@ public class UserBean implements UserBeanRemote {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Override
 	public User register(@PathParam("username") String username, @PathParam("password") @Encoded String password) throws UsernameExistsException {
-		User retVal = new User(username, password);
-		retVal.addRegisteredUser(username, password);
 		System.out.println("hello from register");
+		User retVal = new User(username, password);
+		boolean success = retVal.addRegisteredUser(username, password);
+		if(!success){
+			throw new UsernameExistsException("Username already exists");
+		}
+		else{
 		
 		//JMS CALL
 		/*try {
 			sender.sendMessage("1568465asd68f46a5e4f6a8e46f5a4e98fa4e654afe86a84fe6afe48fMEEEEEESSSSSAAAAAAAGGGGGGGEEEEEEE!!!!!!!");
 		} catch (JMSException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}*/
 		
 		
-		return retVal;
+			return retVal;
+		}
 	}
 
 	@GET
@@ -77,11 +81,11 @@ public class UserBean implements UserBeanRemote {
 				//sender.sendMessage("Prijavio se novi korisnik: " + user.getUsername());
 				sender.sendMessage(user, "login");
 			} catch (JMSException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
-			
+		}
+		else{
+			throw new InvalidCredentialsException("Wrong username or password");
 		}
 		System.out.println("here are messages");
 		System.out.println(Message.messages);
@@ -103,7 +107,6 @@ public class UserBean implements UserBeanRemote {
 				//sender.sendMessage("Prijavio se novi korisnik: " + user.getUsername());
 				sender.sendMessage(logout, "logout");
 			} catch (JMSException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

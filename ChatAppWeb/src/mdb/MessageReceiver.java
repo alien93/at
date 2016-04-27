@@ -1,37 +1,32 @@
 package mdb;
+import java.io.IOException;
+
 /**
  * @author nina
  */
-import javax.annotation.Resource;
 import javax.ejb.ActivationConfigProperty;
 import javax.ejb.MessageDriven;
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
-import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
-import javax.jms.Queue;
-import javax.jms.QueueConnection;
-import javax.jms.QueueSession;
-import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.websocket.WebSocketContainer;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
-import com.sun.xml.internal.ws.api.model.WSDLOperationMapping;
-
+import exception.InvalidCredentialsException;
 import model.Host;
 import model.User;
+import session.UserBean;
+import ws.WSManager;
 
 /**
- * Message-Driven Bean implementation class for: SenderReceiver
+ * Message-Driven Bean implementation class for: MessageReceiver
  */
 @MessageDriven(
 		activationConfig = { 
@@ -40,16 +35,14 @@ import model.User;
 			@ActivationConfigProperty(
 				propertyName = "destination", propertyValue = "queue/mojQueue")	
 		})
-public class ChatSenderReceiver implements MessageListener {
-
-
+public class MessageReceiver implements MessageListener {
 
 	
     /**
      * Default constructor. 
      */
-    public ChatSenderReceiver() {
-    	System.out.println("ChatSenderReceiver created");
+    public MessageReceiver() {
+    	System.out.println("MessageReceiver created");
     }
 	
     
@@ -61,7 +54,7 @@ public class ChatSenderReceiver implements MessageListener {
     		TextMessage tm = (TextMessage) msg;
     		try{
     			String text = tm.getText();
-    			System.out.println("ChatSenderReceiver: received new message: " + text);
+    			System.out.println("MessageReceiver: received new message: " + text);
     		}catch(JMSException e){
     			e.printStackTrace();
     		}
@@ -70,7 +63,7 @@ public class ChatSenderReceiver implements MessageListener {
     		ObjectMessage obj = (ObjectMessage)msg;
     		try {
     			//prijavio se novi korisnik, javi svima!
-				if(msg.getJMSType().equals("login"))
+				if(msg.getJMSType().equals("login")){
 					try {
 						User user = (User)obj.getObject();
 						
@@ -88,7 +81,8 @@ public class ChatSenderReceiver implements MessageListener {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-				else if(msg.getJMSType().equals("logout"))
+				}
+				else if(msg.getJMSType().equals("logout")){
 					try {
 						User user = (User)obj.getObject();
 						
@@ -106,6 +100,46 @@ public class ChatSenderReceiver implements MessageListener {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+				}
+				else if(msg.getJMSType().equals("login_jms")){
+					try{
+						System.out.println("[MessageReceiver]");
+						String sessionID = msg.getStringProperty("json");
+						System.out.println("Session: " + sessionID);
+						User u = new User();
+						User user = (User)obj.getObject();
+						System.out.println("User:" + user.toString());
+						UserBean ub = new UserBean();
+						boolean retVal = false;
+						try {
+							retVal = ub.login(user.getUsername(), user.getPassword(), sessionID);
+							System.out.println("User added? " + retVal);
+						} catch (InvalidCredentialsException e1) {
+							e1.printStackTrace();
+						}
+						javax.websocket.Session session = null;
+						//finding the session
+						for(javax.websocket.Session s: WSManager.sessions){
+							if(s.getId().equals(sessionID)){
+								session = s;
+								break;
+							}
+						}
+						
+						try {
+							if(retVal && session!=null)
+								session.getBasicRemote().sendText("success");
+							else
+								session.getBasicRemote().sendText("error");
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						System.out.println("[/MessageReceiver]");
+					}catch(JMSException e){
+						e.printStackTrace();
+					}
+				}
 			} catch (JMSException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

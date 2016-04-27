@@ -36,22 +36,22 @@ public class MySender implements MySenderLocal {
 	@Override
 	public void sendMessage(String txt) throws JMSException {
 		try{
-		Context context = new InitialContext();
-		ConnectionFactory factory = (ConnectionFactory) context.lookup("java:/ConnectionFactory");
-		final Queue target = (Queue) context.lookup("java:jboss/exported/jms/queue/mojQueue");
-		context.close();
-		
-		System.out.println(factory);
-		System.out.println(target);
-		Connection con = factory.createConnection();
-			try{
-				Session session  = con.createSession(false,  Session.AUTO_ACKNOWLEDGE);
-				MessageProducer producer = session.createProducer(target);
-				producer.send(session.createTextMessage(txt));
-			}
-			finally{
-				con.close();
-			}
+			Context context = new InitialContext();
+			ConnectionFactory factory = (ConnectionFactory) context.lookup("java:/ConnectionFactory");
+			final Queue target = (Queue) context.lookup("java:jboss/exported/jms/queue/mojQueue");
+			context.close();
+			
+			System.out.println(factory);
+			System.out.println(target);
+			Connection con = factory.createConnection();
+				try{
+					Session session  = con.createSession(false,  Session.AUTO_ACKNOWLEDGE);
+					MessageProducer producer = session.createProducer(target);
+					producer.send(session.createTextMessage(txt));
+				}
+				finally{
+					con.close();
+				}
 		}
 		catch(Exception e){
 			e.printStackTrace();
@@ -76,6 +76,44 @@ public class MySender implements MySenderLocal {
 						if(msgType.equals("login")){
 							ObjectMessage message = session.createObjectMessage((User)obj);
 							message.setJMSType("login");
+							producer.send(message);
+						}
+						else if(msgType.equals("logout")){
+							ObjectMessage message = session.createObjectMessage((User)obj);
+							message.setJMSType("logout");
+							producer.send(message);
+						}
+					}
+				}
+				finally{
+					con.close();
+				}
+			}
+			catch(Exception e){
+				e.printStackTrace();
+			}
+		
+	}
+
+	@Override
+	public void sendMessage(Object obj, String sessionId, String msgType) throws JMSException {
+		try{
+			Context context = new InitialContext();
+			ConnectionFactory factory = (ConnectionFactory) context.lookup("java:/ConnectionFactory");
+			final Queue target = (Queue) context.lookup("java:jboss/exported/jms/queue/mojQueue");
+			context.close();
+			
+			System.out.println(factory);
+			System.out.println(target);
+			Connection con = factory.createConnection();
+				try{
+					Session session  = con.createSession(false,  Session.AUTO_ACKNOWLEDGE);
+					MessageProducer producer = session.createProducer(target);
+					if(obj instanceof User){
+						if(msgType.equals("login_jms")){
+							ObjectMessage message = session.createObjectMessage((User)obj);
+							message.setJMSType("login_jms");
+							message.setStringProperty("json", sessionId);
 							producer.send(message);
 						}
 						else if(msgType.equals("logout")){
