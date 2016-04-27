@@ -69,15 +69,14 @@ public class MessageReceiver implements MessageListener {
 						User user = (User)obj.getObject();
 						
 						//prodji kroz listu svih cvorova i posalji adduser zahtev
-						//for(int i=0; i<Host.hosts.size(); i++){
+						for(int i=0; i<Host.hosts.size(); i++){
 							ResteasyClient client = new ResteasyClientBuilder().build();
-							//String ip = Host.hosts.get(i).getAddress();
-							String ip = "localhost";
+							String ip = Host.hosts.get(i).getAddress();
 							String val = "http://" + ip + ":8080/ChatAppWeb/rest/host/addUser";
 							ResteasyWebTarget target = client.target(val);
 							target.request(MediaType.APPLICATION_JSON).post(Entity.entity(user, MediaType.APPLICATION_JSON));
 							
-						//}
+						}
 					} catch (JMSException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -88,15 +87,14 @@ public class MessageReceiver implements MessageListener {
 						User user = (User)obj.getObject();
 						
 						//prodji kroz listu svih cvorova i posalji adduser zahtev
-						//for(int i=0; i<Host.hosts.size(); i++){
+						for(int i=0; i<Host.hosts.size(); i++){
 							ResteasyClient client = new ResteasyClientBuilder().build();
-							//String ip = Host.hosts.get(i).getAddress();
-							String ip = "localhost";
+							String ip = Host.hosts.get(i).getAddress();
 							String val = "http://" + ip + ":8080/ChatAppWeb/rest/host/removeUser";
 							ResteasyWebTarget target = client.target(val);
 							target.request(MediaType.APPLICATION_JSON).post(Entity.entity(user, MediaType.APPLICATION_JSON));
 							
-						//}
+						}
 					} catch (JMSException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

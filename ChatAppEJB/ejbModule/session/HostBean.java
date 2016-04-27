@@ -47,7 +47,6 @@ public class HostBean implements HostBeanRemote {
 	 * Kada se podigne ne-master cvor, na adresu master cvora, ne-master cvor salje svoju adresu i alias.
 	 * Ukoliko je zahtev uspesan, dobija listu svih cvorova u klasteru koju belezi kod sebe.
 	 */
-	@SuppressWarnings("unchecked")
 	@GET
 	@Path("/register/{address}/{alias}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -66,7 +65,7 @@ public class HostBean implements HostBeanRemote {
 				HostsList ret = response.readEntity(HostsList.class);
 				System.out.println("Registring new node result (request from master node)... ");
 				System.out.println(ret);
-				Host.hosts = (List<Host>) ret;
+				//Host.hosts = (List<Host>) ret;
 			}
 		}
 		return (HostsList) Host.hosts;

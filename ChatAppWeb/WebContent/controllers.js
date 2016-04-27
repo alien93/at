@@ -9,7 +9,7 @@ angular.module('chatApp')
 		$rootScope.login = function(){
 			$scope.error = false;
 			if(webSocket == undefined)
-				webSocket = new WebSocket("ws://localhost:8080/ChatAppWeb/websocket");
+				webSocket = new WebSocket("ws://192.168.46.121:8080/ChatAppWeb/websocket");
 			
 			if(webSocket.readyState == 1){
 				console.log("hello from login");
@@ -40,7 +40,7 @@ angular.module('chatApp')
 		$scope.register = function(){
 			$scope.error = false;
 			if(webSocket == undefined)
-				webSocket = new WebSocket("ws://localhost:8080/ChatAppWeb/websocket");
+				webSocket = new WebSocket("ws://192.168.46.121:8080/ChatAppWeb/websocket");
 			webSocket.onopen = function(event){
 				var text = '{"type":"register", "username":"' + $scope.username + '", "password":"' + $scope.password + '"}';
 				webSocket.send(text);
@@ -68,7 +68,7 @@ angular.module('chatApp')
 	.controller('chatController',['$scope', '$location', function($scope, $location){
 		//get all logged users
 		if(webSocket == undefined)
-			webSocket = new WebSocket("ws://localhost:8080/ChatAppWeb/websocket");
+			webSocket = new WebSocket("ws://192.168.46.121:8080/ChatAppWeb/websocket");
 		
 		if(webSocket.readyState == 1){
 			var text = '{"type":"getLoggedUsers"}';
@@ -121,7 +121,7 @@ angular.module('chatApp')
 			
 			
 			if(webSocket == undefined)
-				webSocket = new WebSocket("ws://localhost:8080/ChatAppWeb/websocket");
+				webSocket = new WebSocket("ws://192.168.46.121:8080/ChatAppWeb/websocket");
 			
 			//ukoliko je websocket spreman, posalji poruku
 			if(webSocket.readyState == 1){

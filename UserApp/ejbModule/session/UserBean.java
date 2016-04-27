@@ -73,7 +73,9 @@ public class UserBean implements UserBeanRemote {
 	public Boolean login(@PathParam("username") String username, @PathParam("password") @Encoded String password, @PathParam("session")String session) throws InvalidCredentialsException {
 		Message.messages.put(session, new ArrayList<Message>());	//dodaj host na listu poruka
 		Boolean retVal = false;
-		User user = new User(username, password, new Host("", ""), session);	//TODO: HOST!
+		PropertiesReader pr = new PropertiesReader();
+		String address = pr.getLocal();
+		User user = new User(username, password, new Host(address, address), session);
 		retVal = user.addLoggedUser(user);
 		if(retVal == true){
 			//putem jms-a javi aplikaciji master cvora da se prijavio novi korisnik

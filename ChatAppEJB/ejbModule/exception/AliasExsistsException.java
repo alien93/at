@@ -5,5 +5,9 @@ package exception;
 public class AliasExsistsException extends Exception {
 
 	private static final long serialVersionUID = 3125872590482422149L;
-
+	
+	public AliasExsistsException(String message){
+		super(message);
+	}
+	
 }

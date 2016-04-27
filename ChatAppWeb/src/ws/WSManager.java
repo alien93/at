@@ -78,6 +78,14 @@ public class WSManager {
 					User.registeredUsers = (List<User>)ret1;
 				}
 				else{	//chat and user app are on the same node
+					boolean flag = false;
+					for(Host h:Host.hosts){
+						if(h.getAddress().equals(address))
+							flag = true;
+							break;
+					}
+					if(!flag)
+						Host.hosts.add(new Host(address, address));	//add current node, master node
 					sameNode = true;
 				}
 	}
@@ -117,7 +125,7 @@ public class WSManager {
 						usr = username;
 						//rest
 						ResteasyClient client = new ResteasyClientBuilder().build();
-						String val = "http://localhost:8080/ChatAppWeb/rest/user/login/"+ username + "/"+password+ "/" + session.getId() + ";username=" + username + ";password=" + password + ";session=" + session.getId();
+						String val = "http://" + master + ":8080/ChatAppWeb/rest/user/login/"+ username + "/"+password+ "/" + session.getId() + ";username=" + username + ";password=" + password + ";session=" + session.getId();
 						ResteasyWebTarget target = client.target(val);
 						Response response = target.request().get();
 						Boolean ret = response.readEntity(Boolean.class);
@@ -136,7 +144,7 @@ public class WSManager {
 						String password = jsonmsg.getString("password");
 						//rest
 						ResteasyClient client = new ResteasyClientBuilder().build();
-						String val = "http://localhost:8080/ChatAppWeb/rest/user/register/"+ username + "/"+password+";username=" + username + ";password=" + password;
+						String val = "http://" + master + ":8080/ChatAppWeb/rest/user/register/"+ username + "/"+password+";username=" + username + ";password=" + password;
 						ResteasyWebTarget target = client.target(val);
 						Response response = target.request(MediaType.APPLICATION_JSON).get();
 						User ret = response.readEntity(User.class);
@@ -154,10 +162,11 @@ public class WSManager {
 					
 						User user = new User();
 						user = user.getUserByUsername(username);
+						String ip = user.getHost().getAddress();
 						
 						//rest
 						ResteasyClient client = new ResteasyClientBuilder().build();
-						String val = "http://localhost:8080/ChatAppWeb/rest/user/logout";
+						String val = "http://" + ip + ":8080/ChatAppWeb/rest/user/logout";
 						ResteasyWebTarget target = client.target(val);
 						Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(user, MediaType.APPLICATION_JSON));
 						Boolean ret = response.readEntity(Boolean.class);
@@ -192,31 +201,27 @@ public class WSManager {
 						//rest
 						if(toUser!=null){
 							//poruka je privatna, proveri da li je host primaoca trenutni cvor
-							//TODO
-							//if(!address.equals("") && toUser.getHost().getAddress().equals(address)){
+							if(!address.equals("") && toUser.getHost().getAddress().equals(address)){
 								//ukoliko host primaoca jeste trenutni cvor, putem websocket-a prikazi poruku datom korisniku
 								Session fromUserSession = null;
 								for(Session s: sessions){
-									if(s.getId().equals(fromUser.getSessionID())){
+									if(s.getId().equals(fromUser.getSessionID())){	//pronadji odgovarajucu sesiju
 										fromUserSession = s;
 										break;
 									}
 								}
 							
-							
 								for(Session ses : sessions){
 									if(ses.getId().equals(toUser.getSessionID())){	
 										//publish it
 										Message msg = new Message(fromUser, toUser, date, subject, content);
-										//String ip = toUser.getHost().getAddress();
-										String ip = "localhost";
+										String ip = address;
 										ResteasyClient client = new ResteasyClientBuilder().build();
 										String val = "http://"+ ip +":8080/ChatAppWeb/rest/message/publish";
 										ResteasyWebTarget target = client.target(val);
 										Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(msg, MediaType.APPLICATION_JSON));
 										Boolean ret = response.readEntity(Boolean.class);
 										if (ret == true){
-											//session.getBasicRemote().sendText("success");	
 											//addUsers();
 											ses.getBasicRemote().sendText("success_message");
 											sendAMessage(toUser, ses);
@@ -225,22 +230,23 @@ public class WSManager {
 											System.out.println("[WS] true");
 										}
 										else{
-											//session.getBasicRemote().sendText("error");
 											ses.getBasicRemote().sendText("error_message");	
 											System.out.println("[WS] false");
 										}
 									}
 								}
-								
-							//}
+							}
+							else{
+								//host primaoca nije trenutni cvor
+								System.out.println("HOST PRIMAOCA NIJE TRENUTNI CVOR!!!");
+							}
 							
 						}
 						else{
 							//formiraj publish zahtev za svaki cvor u cluster-u
-							//for(int i=0; i<Host.hosts.size(); i++){
+							for(int i=0; i<Host.hosts.size(); i++){
 								Message msg = new Message(fromUser, toUser, date, subject, content);
-								//String ip = Host.hosts.get(i).getAddress();
-								String ip = "localhost";
+								String ip = Host.hosts.get(i).getAddress();
 								ResteasyClient client = new ResteasyClientBuilder().build();
 								String val = "http://"+ ip +":8080/ChatAppWeb/rest/message/publish";
 								ResteasyWebTarget target = client.target(val);
@@ -250,7 +256,7 @@ public class WSManager {
 									//session.getBasicRemote().sendText("success");	
 									//addUsers();
 									session.getBasicRemote().sendText("success_message");
-									sendMessages();
+									sendMessages(ip);
 									System.out.println("[WS] true");
 								}
 								else{
@@ -258,6 +264,7 @@ public class WSManager {
 									session.getBasicRemote().sendText("error_message");	
 									System.out.println("[WS] false");
 								}
+							}
 						}
 					}
 					//get loggedUsers
@@ -305,19 +312,6 @@ public class WSManager {
 						User user = new User();
 						user = user.getUserByUsername(username);
 						
-						//rest
-						/*ResteasyClient client = new ResteasyClientBuilder().build();
-						String val = "http://localhost:8080/ChatAppWeb/rest/user/logout";
-						ResteasyWebTarget target = client.target(val);
-						Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(user, MediaType.APPLICATION_JSON));
-						Boolean ret = response.readEntity(Boolean.class);
-						if (ret == true){
-							session.getBasicRemote().sendText("success");	
-							addUsers();
-						}
-						else{
-							session.getBasicRemote().sendText("error");
-						}*/
 						try{
 							sender.sendMessage(user, session.getId(), "logout_jms");
 						}catch(JMSException e){
@@ -349,8 +343,7 @@ public class WSManager {
 						//rest
 						if(toUser!=null){
 							//poruka je privatna, proveri da li je host primaoca trenutni cvor
-							//TODO
-							//if(!address.equals("") && toUser.getHost().getAddress().equals(address)){
+							if(!address.equals("") && toUser.getHost().getAddress().equals(address)){
 								//ukoliko host primaoca jeste trenutni cvor, putem websocket-a prikazi poruku datom korisniku
 								Session fromUserSession = null;
 								for(Session s: sessions){
@@ -366,15 +359,13 @@ public class WSManager {
 									if(ses.getId().equals(toUser.getSessionID())){	
 										//publish it
 										Message msg = new Message(fromUser, toUser, date, subject, content);
-										//String ip = toUser.getHost().getAddress();
-										String ip = "localhost";
+										String ip = toUser.getHost().getAddress();
 										ResteasyClient client = new ResteasyClientBuilder().build();
 										String val = "http://"+ ip +":8080/ChatAppWeb/rest/message/publish";
 										ResteasyWebTarget target = client.target(val);
 										Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(msg, MediaType.APPLICATION_JSON));
 										Boolean ret = response.readEntity(Boolean.class);
 										if (ret == true){
-											//session.getBasicRemote().sendText("success");	
 											//addUsers();
 											ses.getBasicRemote().sendText("success_message");
 											sendAMessage(toUser, ses);
@@ -390,25 +381,57 @@ public class WSManager {
 									}
 								}
 								
-							//}
+							}
+							else{
+								//poruka je privatna, host primaoca NIJE trenutni cvor
+								//pronadji ko je host
+								Host h = toUser.getHost();	//<-- host primaoca
+								String ip = h.getAddress();
+								
+								for(Session ses : sessions){
+									if(ses.getId().equals(toUser.getSessionID())){	
+										//publish it
+										Message msg = new Message(fromUser, toUser, date, subject, content);
+										ResteasyClient client = new ResteasyClientBuilder().build();
+										String val = "http://"+ ip +":8080/ChatAppWeb/rest/message/publish";
+										ResteasyWebTarget target = client.target(val);
+										Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(msg, MediaType.APPLICATION_JSON));
+										Boolean ret = response.readEntity(Boolean.class);
+										if (ret == true){
+											//addUsers();
+											ses.getBasicRemote().sendText("success_message");
+											sendAMessage(toUser, ses);
+											/*if(fromUserSession!=null)
+												sendAMessage(fromUser, fromUserSession);*/
+											System.out.println("[WS] true");
+										}
+										else{
+											ses.getBasicRemote().sendText("error_message");	
+											System.out.println("[WS] false");
+										}
+									}
+								}
+								
+								
+							}
 							
 						}
 						else{
 							//formiraj publish zahtev za svaki cvor u cluster-u
-							//for(int i=0; i<Host.hosts.size(); i++){
+							for(int i=0; i<Host.hosts.size(); i++){
 								Message msg = new Message(fromUser, toUser, date, subject, content);
-								//String ip = Host.hosts.get(i).getAddress();
-								String ip = "localhost";
+								String ip = Host.hosts.get(i).getAddress();
 								ResteasyClient client = new ResteasyClientBuilder().build();
 								String val = "http://"+ ip +":8080/ChatAppWeb/rest/message/publish";
+								System.out.println("value: " + val);
 								ResteasyWebTarget target = client.target(val);
 								Response response = target.request(MediaType.APPLICATION_JSON).post(Entity.entity(msg, MediaType.APPLICATION_JSON));
 								Boolean ret = response.readEntity(Boolean.class);
+								System.out.println("Response: " + ret);
 								if (ret == true){
-									//session.getBasicRemote().sendText("success");	
 									//addUsers();
 									session.getBasicRemote().sendText("success_message");
-									sendMessages();
+									sendMessages(ip);
 									System.out.println("[WS] true");
 								}
 								else{
@@ -416,18 +439,13 @@ public class WSManager {
 									session.getBasicRemote().sendText("error_message");	
 									System.out.println("[WS] false");
 								}
+							}
 						}
 					}
 					//get loggedUsers
 					else if(jsonmsg.getString("type").equals("getLoggedUsers")){
 						addUsers();
 					}
-								
-					/*for(Session s: sessions){
-						if(!s.getId().equals(session.getId())){
-							s.getBasicRemote().sendText(message, last);
-						}
-					}*/
 				}
 			}
 		}catch(IOException e){
@@ -447,7 +465,7 @@ public class WSManager {
 			User user = new User();
 			user = user.getUserByUsername(usr);
 			ResteasyClient client = new ResteasyClientBuilder().build();
-			String val = "http://localhost:8080/ChatAppWeb/rest/user/logout";
+			String val = "http://" + master + "8080/ChatAppWeb/rest/user/logout";
 			ResteasyWebTarget target = client.target(val);
 			target.request(MediaType.APPLICATION_JSON).post(Entity.entity(user, MediaType.APPLICATION_JSON));
 		}
@@ -463,7 +481,7 @@ public class WSManager {
 	public void addUsers() throws IOException{
 		for (Session session : sessions){
 			ResteasyClient client = new ResteasyClientBuilder().build();
-			String val = "http://localhost:8080/ChatAppWeb/rest/user/loggedUsers";
+			String val = "http://" + address + ":8080/ChatAppWeb/rest/user/loggedUsers";
 			ResteasyWebTarget target = client.target(val);
 			Response response = target.request().get();
 			UserList ret1 = response.readEntity(UserList.class);
@@ -482,33 +500,35 @@ public class WSManager {
 		}
 	}
 	
-	public void sendMessages() throws IOException{
-		for(Session session: sessions){
-			ResteasyClient client = new ResteasyClientBuilder().build();
-			String val = "http://localhost:8080/ChatAppWeb/rest/message/messagesForSession/"+ session.getId() +";session=" + session.getId();
-			ResteasyWebTarget target = client.target(val);
-			Response response = target.request().get();
-			System.out.println("Response: " + response);
-			MessageList ret1 = response.readEntity(MessageList.class);
-			System.out.println("creating list for session: " + session.getId());
-			if (ret1 != null){
-				session.getBasicRemote().sendText("success_message");	
-				try {
-					session.getBasicRemote().sendObject(ret1);
-				} catch (EncodeException e) {
-					e.printStackTrace();
+	public void sendMessages(String ip) throws IOException{
+		//send message to everyone!
+			for(Session session: sessions){
+				ResteasyClient client = new ResteasyClientBuilder().build();
+				String val = "http://"+ ip +":8080/ChatAppWeb/rest/message/messagesForSession/"+ session.getId() +";session=" + session.getId();
+				ResteasyWebTarget target = client.target(val);
+				Response response = target.request().get();
+				System.out.println("Response: " + response);
+				MessageList ret1 = response.readEntity(MessageList.class);
+				System.out.println("creating list for session: " + session.getId());
+				if (ret1 != null){
+					session.getBasicRemote().sendText("success_message");	
+					try {
+						session.getBasicRemote().sendObject(ret1);
+					} catch (EncodeException e) {
+						e.printStackTrace();
+					}
+				}
+				else{
+					session.getBasicRemote().sendText("error_message");
 				}
 			}
-			else{
-				session.getBasicRemote().sendText("error_message");
-			}
-		}
 	}
 	
 	public void sendAMessage(User toUser, Session ses){
 		try{
 			ResteasyClient client = new ResteasyClientBuilder().build();
-			String val = "http://localhost:8080/ChatAppWeb/rest/message/messagesForSession/"+ toUser.getSessionID() +";session=" + toUser.getSessionID();
+			String ip = toUser.getHost().getAddress();
+			String val = "http://"+ip+":8080/ChatAppWeb/rest/message/messagesForSession/"+ toUser.getSessionID() +";session=" + toUser.getSessionID();
 			ResteasyWebTarget target = client.target(val);
 			Response response = target.request().get();
 			System.out.println("Response: " + response);
