@@ -1,8 +1,6 @@
 package session;
 
-import java.io.Serializable;
 
-import javax.annotation.Resource;
 import javax.ejb.Stateless;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;

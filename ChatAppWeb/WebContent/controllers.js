@@ -117,7 +117,7 @@ angular.module('chatApp')
 			console.log('from ' + $scope.username);
 			console.log('date ' +  new Date());
 			console.log('subject ' + $scope.subject);
-			console.log('message ' + $scope.message);
+			console.log('message ' + $scope.content);
 			
 			
 			if(webSocket == undefined)
@@ -125,7 +125,7 @@ angular.module('chatApp')
 			
 			//ukoliko je websocket spreman, posalji poruku
 			if(webSocket.readyState == 1){
-				var text = '{"type":"message", "to":"' + $scope.selectedValue + '", "from":"' + $scope.username + '", "date":"' + new Date() + '", "subject":"' + $scope.subject + '", "message":"' + $scope.message + '"}';
+				var text = '{"type":"message", "to":"' + $scope.selectedValue + '", "from":"' + $scope.username + '", "date":"' + new Date() + '", "subject":"' + $scope.subject + '", "message":"' + $scope.content + '"}';
 				webSocket.send(text);	
 			}
 			
@@ -157,6 +157,9 @@ angular.module('chatApp')
 					}
 				});
 			}
+			
+			$scope.subject = "";	//reset fields
+			$scope.content = "";
 			
 		}
 		
