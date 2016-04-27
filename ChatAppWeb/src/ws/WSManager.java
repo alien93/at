@@ -47,9 +47,39 @@ public class WSManager {
 	String alias = "";
 	boolean sameNode = false;
 	public transient static List<Session> sessions = new ArrayList<Session>();
+	MySenderLocal sender = new MySender();
 
+
+	@SuppressWarnings("unchecked")
 	public WSManager(){
-		
+		//send register request if you're not a master node
+				PropertiesReader pr = new PropertiesReader();
+				master = pr.getMaster();					//master node address
+				address = pr.getLocal();
+				alias = address;							//TODO: something else?
+				if(!master.equals("")){						//chat and user app are not on the same node
+					ResteasyClient client = new ResteasyClientBuilder().build();
+					String val = "http://" + master + ":8080/ChatAppWeb/rest/host/register/"+ address + "/"+alias+";address=" + address + ";alias=" + alias;
+					ResteasyWebTarget target = client.target(val);
+					Response response = target.request().get();
+					HostsList ret = response.readEntity(HostsList.class);
+					System.out.println("Registring node result... ");
+					System.out.println(ret);
+					Host.hosts = (List<Host>) ret;
+					
+					//get all users
+					client = new ResteasyClientBuilder().build();
+					val = "http://" + master + ":8080/ChatAppWeb/rest/user/allUsers";
+					target = client.target(val);
+					response = target.request().get();
+					UserList ret1 = response.readEntity(UserList.class);
+					System.out.println("Getting registeres users...");
+					System.out.println(ret1);
+					User.registeredUsers = (List<User>)ret1;
+				}
+				else{	//chat and user app are on the same node
+					sameNode = true;
+				}
 	}
 	
 	public static WSManager getInstance(){
@@ -68,35 +98,6 @@ public class WSManager {
 			session.getBasicRemote().sendText("Connection established...");
 		}catch(IOException e){
 			e.printStackTrace();
-		}
-		
-		//send register request if you're not a master node
-		PropertiesReader pr = new PropertiesReader();
-		master = pr.getMaster();					//master node address
-		address = pr.getLocal();
-		alias = address;							//TODO: something else?
-		if(!master.equals("")){						//chat and user app are not on the same node
-			ResteasyClient client = new ResteasyClientBuilder().build();
-			String val = "http://" + master + ":8080/ChatAppWeb/rest/host/register/"+ address + "/"+alias+";address=" + address + ";alias=" + alias;
-			ResteasyWebTarget target = client.target(val);
-			Response response = target.request().get();
-			HostsList ret = response.readEntity(HostsList.class);
-			System.out.println("Registring node result... ");
-			System.out.println(ret);
-			Host.hosts = (List<Host>) ret;
-			
-			//get all users
-			client = new ResteasyClientBuilder().build();
-			val = "http://" + master + ":8080/ChatAppWeb/rest/user/allUsers";
-			target = client.target(val);
-			response = target.request().get();
-			UserList ret1 = response.readEntity(UserList.class);
-			System.out.println("Getting registeres users...");
-			System.out.println(ret1);
-			User.registeredUsers = (List<User>)ret1;
-		}
-		else{	//chat and user app are on the same node
-			sameNode = true;
 		}
 	}
 	
@@ -280,22 +281,7 @@ public class WSManager {
 						String username = jsonmsg.getString("username");
 						String password = jsonmsg.getString("password");
 						usr = username;
-						//rest
-						/*ResteasyClient client = new ResteasyClientBuilder().build();
-						String val = "http://localhost:8080/ChatAppWeb/rest/user/login/"+ username + "/"+password+ "/" + session.getId() + ";username=" + username + ";password=" + password + ";session=" + session.getId();
-						ResteasyWebTarget target = client.target(val);
-						Response response = target.request().get();
-						Boolean ret = response.readEntity(Boolean.class);
-						if (ret == true){
-							session.getBasicRemote().sendText("success");
-							
-						}
-						else{
-							session.getBasicRemote().sendText("error");
-						}
-						*/
 						User user = new User(username, password, new Host(address, address), session.getId());
-						MySenderLocal sender = new MySender();
 						
 						try {
 							sender.sendMessage(user, session.getId(), "login_jms");
@@ -308,18 +294,12 @@ public class WSManager {
 					//register
 					else if(jsonmsg.getString("type").equals("register")){
 						String username = jsonmsg.getString("username");
-						String password = jsonmsg.getString("password");
-						//rest
-						ResteasyClient client = new ResteasyClientBuilder().build();
-						String val = "http://localhost:8080/ChatAppWeb/rest/user/register/"+ username + "/"+password+";username=" + username + ";password=" + password;
-						ResteasyWebTarget target = client.target(val);
-						Response response = target.request(MediaType.APPLICATION_JSON).get();
-						User ret = response.readEntity(User.class);
-						if(ret!=null){
-							session.getBasicRemote().sendText("success");
-						}
-						else{
-							session.getBasicRemote().sendText("error");
+						String password = jsonmsg.getString("password");						
+						User user = new User(username, password);
+						try{
+							sender.sendMessage(user, session.getId(), "register_jms");
+						}catch(JMSException e){
+							e.printStackTrace();
 						}
 						
 					}

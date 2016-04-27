@@ -20,6 +20,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 
 import exception.InvalidCredentialsException;
+import exception.UsernameExistsException;
 import model.Host;
 import model.User;
 import session.UserBean;
@@ -106,7 +107,6 @@ public class MessageReceiver implements MessageListener {
 						System.out.println("[MessageReceiver]");
 						String sessionID = msg.getStringProperty("json");
 						System.out.println("Session: " + sessionID);
-						User u = new User();
 						User user = (User)obj.getObject();
 						System.out.println("User:" + user.toString());
 						UserBean ub = new UserBean();
@@ -128,6 +128,45 @@ public class MessageReceiver implements MessageListener {
 						
 						try {
 							if(retVal && session!=null)
+								session.getBasicRemote().sendText("success");
+							else
+								session.getBasicRemote().sendText("error");
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						System.out.println("[/MessageReceiver]");
+					}catch(JMSException e){
+						e.printStackTrace();
+					}
+				}
+				else if(msg.getJMSType().equals("register_jms")){
+					try{
+						System.out.println("[MessageReceiver]");
+						String sessionID = msg.getStringProperty("json");
+						System.out.println("Session: " + sessionID);
+						User user = (User)obj.getObject();
+						System.out.println("User:" + user.toString());
+						UserBean ub = new UserBean();
+						User retVal = null;
+						try {
+							retVal = ub.register(user.getUsername(), user.getPassword());
+							System.out.println("User added? " + retVal!=null?true:false);
+						} catch (UsernameExistsException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						javax.websocket.Session session = null;
+						//finding the session
+						for(javax.websocket.Session s: WSManager.sessions){
+							if(s.getId().equals(sessionID)){
+								session = s;
+								break;
+							}
+						}
+						
+						try {
+							if(retVal!=null && session!=null)
 								session.getBasicRemote().sendText("success");
 							else
 								session.getBasicRemote().sendText("error");
