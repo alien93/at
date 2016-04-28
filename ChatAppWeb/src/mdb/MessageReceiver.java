@@ -11,7 +11,9 @@ import javax.jms.Message;
 import javax.jms.MessageListener;
 import javax.jms.ObjectMessage;
 import javax.jms.TextMessage;
-import javax.websocket.WebSocketContainer;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 
@@ -23,7 +25,7 @@ import exception.InvalidCredentialsException;
 import exception.UsernameExistsException;
 import model.Host;
 import model.User;
-import session.UserBean;
+import session.UserBeanRemote;
 import ws.WSManager;
 
 /**
@@ -107,7 +109,9 @@ public class MessageReceiver implements MessageListener {
 						System.out.println("Session: " + sessionID);
 						User user = (User)obj.getObject();
 						System.out.println("User:" + user.toString());
-						UserBean ub = new UserBean();
+						Context context = new InitialContext();
+						String remoteName = "java:global/ChatApp/ChatAppWeb/UserBean!session.UserBean";
+						UserBeanRemote ub = (UserBeanRemote)context.lookup(remoteName);
 						boolean retVal = false;
 						try {
 							retVal = ub.login(user.getUsername(), user.getPassword(), sessionID);
@@ -130,12 +134,13 @@ public class MessageReceiver implements MessageListener {
 							else
 								session.getBasicRemote().sendText("error");
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 						System.out.println("[/MessageReceiver]");
 					}catch(JMSException e){
 						e.printStackTrace();
+					} catch (NamingException e2) {
+						e2.printStackTrace();
 					}
 				}
 				else if(msg.getJMSType().equals("register_jms")){
@@ -145,8 +150,9 @@ public class MessageReceiver implements MessageListener {
 						System.out.println("Session: " + sessionID);
 						User user = (User)obj.getObject();
 						System.out.println("User:" + user.toString());
-						UserBean ub = new UserBean();
-						User retVal = null;
+						Context context = new InitialContext();
+						String remoteName = "java:global/ChatApp/ChatAppWeb/UserBean!session.UserBean";
+						UserBeanRemote ub = (UserBeanRemote)context.lookup(remoteName);						User retVal = null;
 						try {
 							retVal = ub.register(user.getUsername(), user.getPassword());
 							System.out.println("User registered? " + retVal!=null?true:false);
@@ -173,7 +179,7 @@ public class MessageReceiver implements MessageListener {
 							e.printStackTrace();
 						}
 						System.out.println("[/MessageReceiver]");
-					}catch(JMSException e){
+					}catch(JMSException | NamingException e){
 						e.printStackTrace();
 					}
 				}
@@ -184,8 +190,9 @@ public class MessageReceiver implements MessageListener {
 						System.out.println("Session: " + sessionID);
 						User user = (User)obj.getObject();
 						System.out.println("User:" + user.toString());
-						UserBean ub = new UserBean();
-						Boolean retVal = false;
+						Context context = new InitialContext();
+						String remoteName = "java:global/ChatApp/ChatAppWeb/UserBean!session.UserBean";
+						UserBeanRemote ub = (UserBeanRemote)context.lookup(remoteName);						Boolean retVal = false;
 						retVal = ub.logout(user);
 						System.out.println("User removed? " + retVal!=null?true:false);
 						
@@ -215,7 +222,7 @@ public class MessageReceiver implements MessageListener {
 							e.printStackTrace();
 						}
 						
-					}catch(JMSException e){
+					}catch(JMSException | NamingException e){
 						e.printStackTrace();
 					}
 				}
