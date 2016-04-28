@@ -19,13 +19,6 @@ import model.User;
  */
 @Stateless
 public class MySender implements MySenderLocal {
-
-	/*@Resource(mappedName = "java:/ConnectionFactory")
-    private ConnectionFactory factory;
-	
-	@Resource(mappedName="java:jboss/exported/jms/queue/mojQueue")
-	private Queue target;*/
-	
     /**
      * Default constructor. 
      */
